@@ -81,9 +81,9 @@ auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
         &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier
     );
 
-    std::vector<std::size_t> tc_shape = { static_cast<std::size_t>(n) };
-    auto tx = xt::adapt(t, tc_shape);
-    auto cx = xt::adapt(c, tc_shape);
+    std::vector<std::size_t> shape = { static_cast<std::size_t>(n) };
+    auto tx = xt::adapt(t, shape);
+    auto cx = xt::adapt(c, shape);
     auto tck = std::make_tuple(tx, cx, k);
 
     return tck;
@@ -108,12 +108,12 @@ auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
 //       * if ext=2, throw `out_of_range`
 //       * if ext=3, return the boundary value.
 //
-template <class E1, class E2, class E3>
-auto splev(xexpression<E1>& x,
-           std::tuple<xexpression<E2>, xexpression<E3>, int>& tck,
+template <class E, class... Args>
+auto splev(xexpression<E>& x,
+           std::tuple<Args...>& tck,
            int der = 0,
            int ext = 0) {
-    auto m = static_cast<int>(x.size());
+    auto m = static_cast<int>(x.derived_cast().size());
 
     auto t = std::get<0>(tck);
     auto n = static_cast<int>(t.size());
@@ -130,10 +130,13 @@ auto splev(xexpression<E1>& x,
     std::vector<double> y(static_cast<std::size_t>(m), 0);
     int ier = 0;
     _splev(
-        &t[0], &n, &c[0], &k, &x[0], &y[0], &m, &ext, &ier
+        &t[0], &n, &c[0], &k, &x.derived_cast()[0], &y[0], &m, &ext, &ier
     );
 
-    return y;
+    std::vector<std::size_t> shape = { y.size() };
+    auto yx = xt::adapt(y, shape);
+
+    return yx;
 }
 
 }  // fitpack
