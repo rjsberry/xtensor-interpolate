@@ -13,7 +13,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(XTENSOR_FITPACK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(XTENSOR_FITPACK_HEADER
     ${XTENSOR_FITPACK_INCLUDE_DIR}/xtensor-fitpack/xfitpack.hpp
-    ${XTENSOR_FITPACK_INCLUDE_DIR}/xtensor-fitpack/xfitpack_utils.hpp
 )
 project(xtensor-fitpack)
 
@@ -122,8 +121,8 @@ enable_language(CXX)
 include(FortranCInterface)
 FortranCInterface_HEADER(FCMangle.h
     MACRO_NAMESPACE "FC_"
-    SYMBOL_NAMESPACE ""
-    SYMBOLS curfit
+    SYMBOL_NAMESPACE "_"
+    SYMBOLS curfit splev
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

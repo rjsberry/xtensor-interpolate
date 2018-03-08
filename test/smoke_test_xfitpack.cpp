@@ -23,3 +23,13 @@ TEST(xfitpack_smoke_test, splrep) {
 
     auto tck = xt::fitpack::splrep(x, y);
 }
+
+TEST(xfitpack_smoke_test, splev) {
+    xt::xtensor<double, 1> x = xt::arange<double>(TEST_ARRAY_LENGTH);
+    xt::xtensor<double, 1> y = xt::random::randn<double>({TEST_ARRAY_LENGTH});
+
+    auto tck = xt::fitpack::splrep(x, y);
+
+    xt::xtensor<double, 1> x_interp = xt::arange<double>(1, TEST_ARRAY_LENGTH-1) - 0.5;
+    auto y_interp = xt::fitpack::splev(x_interp, tck);
+}
