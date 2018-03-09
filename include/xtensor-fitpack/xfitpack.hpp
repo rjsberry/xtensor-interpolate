@@ -16,25 +16,12 @@
 #include "xtensor/xtensor.hpp"
 #include "xtensor/xview.hpp"
 
-#include "FCMangle.h"
+#include "xfcdec.h"
 
-extern "C" {
-
-void _curfit(
-        int *iopt, int *m, double *x, double *y, double *w, double *xb,
-        double *xe, int *k, double *s, int *nest, int *n, double *t,
-        double *c, double *fp, double *wrk, int *lwrk, int *iwrk, int *ier
-    );
-
-void _splev(
-        double *t, int *n, double *c, int *k, double *x, double *y, int *m,
-        int *e, int *ier
-    );
-
-}  // extern "C"
-
-namespace xt {
-namespace fitpack {
+namespace xt
+{
+namespace fitpack
+{
 
 // Find the B-spline representation of a 1-D curve.
 //
@@ -48,7 +35,8 @@ namespace fitpack {
 //     1 <= k <= 5
 //
 template <class E1, class E2>
-auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
+auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3)
+{
     XTENSOR_ASSERT(x.dimension() == 1);
     XTENSOR_ASSERT(y.dimension() == 1);
 
@@ -79,10 +67,8 @@ auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
     auto n = 0;
     auto ier = 0;
 
-    _curfit(
-        &iopt, &m, &_x[0], &_y[0], &w[0], &xb, &xe, &k, &s, &nest, &n, &t[0],
-        &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier
-    );
+    _fc_curfit(&iopt, &m, &_x[0], &_y[0], &w[0], &xb, &xe, &k, &s, &nest, &n,
+               &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier);
 
     xtensor<double, 1> _t = view(t, range(0, n));
     xtensor<double, 1> _c = view(c, range(0, n));
@@ -110,10 +96,8 @@ auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
 //       * if ext=3, return the boundary value.
 //
 template <class E, class... Args>
-auto splev(xexpression<E>& x,
-           std::tuple<Args...>& tck,
-           int der = 0,
-           int ext = 0) {
+auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0)
+{
     auto _x = x.derived_cast();
     auto m = static_cast<int>(x.derived_cast().shape()[0]);
 
@@ -122,23 +106,25 @@ auto splev(xexpression<E>& x,
     auto c = std::get<1>(tck);
     auto k = std::get<2>(tck);
 
-    if (!(0 <= der && der <= k)) {
+    if (!(0 <= der && der <= k))
+    {
         throw std::out_of_range("der");
     }
-    if (!(0 <= ext && ext <= 3)) {
+    if (!(0 <= ext && ext <= 3))
+    {
         throw std::out_of_range("ext");
     }
 
     xtensor<double, 1> y = zeros<double>({ static_cast<std::size_t>(m) });
-    int ier = 0;
-    _splev(
-        &t[0], &n, &c[0], &k, &_x[0], &y[0], &m, &ext, &ier
-    );
+    auto ier = 0;
+
+    _fc_splev(&t[0], &n, &c[0], &k, &_x[0], &y[0], &m, &ext, &ier);
 
     return y;
 }
 
-}  // fitpack
+}  // namespace fitpack
+
 }  // namespace xt
 
 #endif  // INCLUDE_XTENSOR_FITPACK_XFITPACK_HPP_

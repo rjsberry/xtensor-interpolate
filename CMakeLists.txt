@@ -121,7 +121,7 @@ enable_language(CXX)
 include(FortranCInterface)
 FortranCInterface_HEADER(FCMangle.h
     MACRO_NAMESPACE "FC_"
-    SYMBOL_NAMESPACE "_"
+    SYMBOL_NAMESPACE "_fc_"
     SYMBOLS curfit splev
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

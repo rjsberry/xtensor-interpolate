@@ -10,6 +10,7 @@
 // Smoke tests for fitpack routines: generally just check they run safely.
 
 #include "gtest/gtest.h"
+
 #include "xtensor/xtensor.hpp"
 #include "xtensor/xrandom.hpp"
 
@@ -17,14 +18,16 @@
 
 const std::size_t TEST_ARRAY_LENGTH = 100;
 
-TEST(xfitpack_smoke_test, splrep) {
+TEST(xfitpack_smoke_test, splrep)
+{
     xt::xtensor<double, 1> x = xt::arange<double>(TEST_ARRAY_LENGTH);
     xt::xtensor<double, 1> y = xt::random::randn<double>({TEST_ARRAY_LENGTH});
 
     auto tck = xt::fitpack::splrep(x, y);
 }
 
-TEST(xfitpack_smoke_test, splev) {
+TEST(xfitpack_smoke_test, splev)
+{
     xt::xtensor<double, 1> x = xt::arange<double>(TEST_ARRAY_LENGTH);
     xt::xtensor<double, 1> y = xt::random::randn<double>({TEST_ARRAY_LENGTH});
 
