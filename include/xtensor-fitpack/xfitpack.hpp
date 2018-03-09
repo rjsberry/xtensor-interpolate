@@ -10,13 +10,11 @@
 // https://github.com/rjsberry/xtensor-fitpack/blob/master/LICENSE)
 //
 
-#include <algorithm>
-#include <memory>
 #include <tuple>
 
-#include "xtensor/xadapt.hpp"
 #include "xtensor/xexpression.hpp"
 #include "xtensor/xtensor.hpp"
+#include "xtensor/xview.hpp"
 
 #include "FCMangle.h"
 
@@ -51,42 +49,45 @@ namespace fitpack {
 //
 template <class E1, class E2>
 auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3) {
-    auto m = static_cast<int>(x.derived_cast().size());
+    XTENSOR_ASSERT(x.dimension() == 1);
+    XTENSOR_ASSERT(y.dimension() == 1);
+
+    auto _x = x.derived_cast();
+    auto _y = y.derived_cast();
+    auto m = static_cast<int>(_x.shape()[0]);
 
     auto s = 0.0;
-    auto xb = x.derived_cast()[0];
-    auto xe = x.derived_cast()[m-1];
+    auto xb = _x[0];
+    auto xe = _x[m-1];
     auto iopt = 0;
 
     // Weights used in computing the weighted least-squares spline fit.
-    std::vector<double> w(static_cast<std::size_t>(m), 1.0);
+    xtensor<double, 1> w = ones<double>({ static_cast<std::size_t>(m) });
 
     auto nest = std::max(m + k + 1, 2*k + 3);
-
     // Knots.
-    std::vector<double> t(static_cast<std::size_t>(nest), 0.0);
+    xtensor<double, 1> t = zeros<double>({ static_cast<std::size_t>(nest) });
     // Coefficients.
-    std::vector<double> c(static_cast<std::size_t>(nest), 0.0);
+    xtensor<double, 1> c = zeros<double>({ static_cast<std::size_t>(nest) });
+
     // Working memory.
     auto lwrk = m*(k + 1) + nest*(7 + 3*k);
-    std::vector<double> wrk(static_cast<std::size_t>(lwrk), 0.0);
-    std::vector<int> iwrk(static_cast<std::size_t>(nest), 0.0);
+    xtensor<double, 1> wrk = zeros<double>({ static_cast<std::size_t>(lwrk) });
+    xtensor<int, 1> iwrk = zeros<int>({ static_cast<std::size_t>(lwrk) });
 
     auto fp = 0.0;
     auto n = 0;
     auto ier = 0;
 
     _curfit(
-        &iopt, &m, &x.derived_cast()[0], &y.derived_cast()[0], &w[0], &xb, &xe,
-        &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier
+        &iopt, &m, &_x[0], &_y[0], &w[0], &xb, &xe, &k, &s, &nest, &n, &t[0],
+        &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier
     );
 
-    std::vector<std::size_t> shape = { static_cast<std::size_t>(n) };
-    auto tx = xt::adapt(t, shape);
-    auto cx = xt::adapt(c, shape);
-    auto tck = std::make_tuple(tx, cx, k);
+    xtensor<double, 1> _t = view(t, range(0, n));
+    xtensor<double, 1> _c = view(c, range(0, n));
 
-    return tck;
+    return std::make_tuple(_t, _c, k);
 }
 
 // Evaluate a B-Spline or its derivatives.
@@ -113,7 +114,8 @@ auto splev(xexpression<E>& x,
            std::tuple<Args...>& tck,
            int der = 0,
            int ext = 0) {
-    auto m = static_cast<int>(x.derived_cast().size());
+    auto _x = x.derived_cast();
+    auto m = static_cast<int>(x.derived_cast().shape()[0]);
 
     auto t = std::get<0>(tck);
     auto n = static_cast<int>(t.size());
@@ -127,16 +129,13 @@ auto splev(xexpression<E>& x,
         throw std::out_of_range("ext");
     }
 
-    std::vector<double> y(static_cast<std::size_t>(m), 0);
+    xtensor<double, 1> y = zeros<double>({ static_cast<std::size_t>(m) });
     int ier = 0;
     _splev(
-        &t[0], &n, &c[0], &k, &x.derived_cast()[0], &y[0], &m, &ext, &ier
+        &t[0], &n, &c[0], &k, &_x[0], &y[0], &m, &ext, &ier
     );
 
-    std::vector<std::size_t> shape = { y.size() };
-    auto yx = xt::adapt(y, shape);
-
-    return yx;
+    return y;
 }
 
 }  // fitpack
