@@ -41,10 +41,10 @@ TEST(smoke_test, cubic_bspline_interpolation)
         xtensor<double, 1> x = linspace<double>(-M_PI, M_PI, orig_arr_len);
         xtensor<double, 1> y = f(x);
 
-        auto tck = fitpack::splrep(x, y);
+        auto tck = interpolate::splrep(x, y);
 
         xtensor<double, 1> x_interp = linspace<double>(-M_PI, M_PI, test_arr_len);
-        auto y_interp = fitpack::splev(x_interp, tck);
+        auto y_interp = interpolate::splev(x_interp, tck);
 
         EXPECT_TRUE(isclose(y_interp, f(x_interp))());
     }

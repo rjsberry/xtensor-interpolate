@@ -20,7 +20,7 @@
 
 namespace xt
 {
-namespace fitpack
+namespace interpolate
 {
 
 // Find the B-spline representation of a 1-D curve.
@@ -123,7 +123,7 @@ auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0
     return y;
 }
 
-}  // namespace fitpack
+}  // namespace interpolate
 
 }  // namespace xt
 
