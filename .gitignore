@@ -1,2 +1,5 @@
 # CMake
 build/
+
+# F-C interface header
+include/xfitpack/FCMangle.h

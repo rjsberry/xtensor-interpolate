@@ -12,7 +12,7 @@
 
 // Declarations of free C functions that interface Fortran code.
 
-#include "FCMangle.h"
+#include "xfitpack/FCMangle.h"
 
 extern "C" {
 
@@ -21,8 +21,8 @@ void _fc_curfit(int* iopt, int* m, double* x, double* y, double* w,
                 int* n, double* t, double* c, double* fp, double* wrk,
                 int* lwrk, int* iwrk, int* ier);
 
-void _fc_splev(double *t, int *n, double *c, int *k, double *x, double *y,
-               int *m, int *e, int *ier);
+void _fc_splev(double* t, int* n, double* c, int* k, double* x, double* y,
+               int* m, int* e, int* ier);
 
 }  // extern "C"
 
