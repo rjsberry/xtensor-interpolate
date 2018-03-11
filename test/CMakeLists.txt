@@ -1,10 +1,10 @@
-# xtensor-fitpack: https://github.com/rjsberry/xtensor-fitpack
+# xtensor-interpolate: https://github.com/rjsberry/xtensor-interpolate
 #
 # Copyright (C) 2018, Richard Berry <rjsberry@protonmail.com>
 #
 # Distributed under the terms of BSD 2-Clause "simplified" license. (See
 # accompanying file LICENSE, or copy at
-# https://github.com/rjsberry/xtensor-fitpack/blob/master/LICENSE)
+# https://github.com/rjsberry/xtensor-interpolate/blob/master/LICENSE)
 #
 
 find_package(xtensor REQUIRED CONFIG)
@@ -25,24 +25,24 @@ set(GTEST_BOTH_LIBRARIES gtest_main gtest)
 find_package(Threads)
 find_package(xtensor REQUIRED)
 
-include_directories(${XTENSOR_FITPACK_INCLUDE_DIR})
+include_directories(${XTENSOR_INTERPOLATE_INCLUDE_DIR})
 include_directories(${XTENSOR_INCLUDE_DIR})
 include_directories(${GTEST_INCLUDE_DIRS})
 
-set(XTENSOR_FITPACK_TESTS
+set(XTENSOR_INTERPOLATE_TESTS
     main.cpp
     test_univariate_spline.cpp
 )
 
-set(XTENSOR_FITPACK_TARGET test_xtensor_fitpack)
+set(XTENSOR_INTERPOLATE_TARGET test_xtensor_interpolate)
 
-add_executable(${XTENSOR_FITPACK_TARGET} ${XTENSOR_FITPACK_TESTS} ${XTENSOR_FITPACK_HEADER})
-add_dependencies(${XTENSOR_FITPACK_TARGET} gtest_main)
+add_executable(${XTENSOR_INTERPOLATE_TARGET} ${XTENSOR_INTERPOLATE_TESTS} ${XTENSOR_INTERPOLATE_HEADER})
+add_dependencies(${XTENSOR_INTERPOLATE_TARGET} gtest_main)
 
-target_link_libraries(${XTENSOR_FITPACK_TARGET}
+target_link_libraries(${XTENSOR_INTERPOLATE_TARGET}
     ${GTEST_BOTH_LIBRARIES}
     ${FITPACK_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-add_custom_target(xtest COMMAND test_xtensor_fitpack)
+add_custom_target(xtest COMMAND test_xtensor_interpolate)
