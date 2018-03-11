@@ -42,4 +42,4 @@ install:
   - make
 script:
   - cd test
-  - ./test_xtensor_fitpack
+  - ./test_xtensor_interpolate
