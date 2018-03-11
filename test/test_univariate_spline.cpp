@@ -1,32 +1,27 @@
-// xtensor-fitpack: https://github.com/rjsberry/xtensor-fitpack
+// xtensor-interpolate: https://github.com/rjsberry/xtensor-interpolate
 //
 // Copyright (C) 2018, Richard Berry <rjsberry@protonmail.com>
 //
 // Distributed under the terms of BSD 2-Clause "simplified" license. (See
 // accompanying file LICENSE, or copy at
-// https://github.com/rjsberry/xtensor-fitpack/blob/master/LICENSE)
+// https://github.com/rjsberry/xtensor-interpolate/blob/master/LICENSE)
 //
-
-// Smoke tests for fitpack routines: generally just check they run safely.
-
-#include <cmath>
-#include <vector>
 
 #include "gtest/gtest.h"
 
 #include "xtensor/xmath.hpp"
-#include "xtensor/xtensor.hpp"
 #include "xtensor/xrandom.hpp"
+#include "xtensor/xtensor.hpp"
 
-#include "xtensor-fitpack/xfitpack.hpp"
+#include "xtensor-interpolate/xinterpolate.hpp"
 
 namespace xt
 {
 
-TEST(smoke_test, cubic_bspline_interpolation)
+TEST(univariate_spline, smoke_test)
 {
-    const std::size_t orig_arr_len = 100;
-    const std::size_t test_arr_len = 1000;
+    const std::size_t orig_arr_len = 10;
+    const std::size_t test_arr_len = 15;
 
     std::vector<std::function<xtensor<double, 1> (xtensor<double, 1>)>> tests =
     {
@@ -41,10 +36,10 @@ TEST(smoke_test, cubic_bspline_interpolation)
         xtensor<double, 1> x = linspace<double>(-M_PI, M_PI, orig_arr_len);
         xtensor<double, 1> y = f(x);
 
-        auto tck = interpolate::splrep(x, y);
+        auto s = interpolate::UnivariateSpline(x, y).set_smoothing_factor(0.0);
 
         xtensor<double, 1> x_interp = linspace<double>(-M_PI, M_PI, test_arr_len);
-        auto y_interp = interpolate::splev(x_interp, tck);
+        auto y_interp = s(x_interp);
 
         EXPECT_TRUE(isclose(y_interp, f(x_interp))());
     }

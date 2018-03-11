@@ -21,6 +21,13 @@ void _fc_curfit(int* iopt, int* m, double* x, double* y, double* w,
                 int* n, double* t, double* c, double* fp, double* wrk,
                 int* lwrk, int* iwrk, int* ier);
 
+void _fc_fpcurf(int* iopt, double* x, double* y, double* w, int* m,
+                double* xb, double* xe, int* k, double* s, int* nest,
+                double* tol, int* maxit, int* k1, int* k2, int* n,
+                double* t, double* c, double* fp, double* fpint,
+                double* wrk, double* wrkn, double* wrknk2, double* wrkn2k2,
+                double* wrkn3k2, int* nrdata, int* ier);
+
 void _fc_splev(double* t, int* n, double* c, int* k, double* x, double* y,
                int* m, int* e, int* ier);
 

@@ -31,7 +31,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 set(XTENSOR_FITPACK_TESTS
     main.cpp
-    smoke_test_xfitpack.cpp
+    test_univariate_spline.cpp
 )
 
 set(XTENSOR_FITPACK_TARGET test_xtensor_fitpack)
