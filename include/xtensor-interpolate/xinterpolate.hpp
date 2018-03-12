@@ -176,30 +176,26 @@ class UnivariateSpline : public Spline
     {
         XTENSOR_ASSERT(w.shape()[0] == m_);
         w_ = w;
-        state_ = UNINITIALIZED;
-        return *this;
+        return reset(*this);
     }
 
     inline auto set_bounds(double begin, double end)
     {
         xb_ = begin;
         xe_ = end;
-        state_ = UNINITIALIZED;
-        return *this;
+        return reset(*this);
     }
 
     inline auto set_order(int k)
     {
         k_ = k;
-        state_ = UNINITIALIZED;
-        return *this;
+        return reset(*this);
     }
 
     inline auto set_smoothing_factor(double s)
     {
         s_ = s;
-        state_ = UNINITIALIZED;
-        return *this;
+        return reset(*this);
     }
 
     inline auto set_extrapolation_mode(int ext)
@@ -207,9 +203,8 @@ class UnivariateSpline : public Spline
         if (0 <= ext && ext <= 3)
         {
             ext_ = ext;
-            state_ = UNINITIALIZED;
         }
-        return *this;
+        return reset(*this);
     }
 
     inline auto set_extrapolation_mode(const std::string& ext)
@@ -219,8 +214,7 @@ class UnivariateSpline : public Spline
             {"extrapolate", 0}, {"zeros", 1}, {"raise", 2}, {"const", 3}
         };
         ext_ = ext_map.at(ext);
-        state_ = UNINITIALIZED;
-        return *this;
+        return reset(*this);
     }
 
     // Evaluate the spline (or it's nu-th derivate) at positions given by x.
@@ -256,12 +250,20 @@ class UnivariateSpline : public Spline
         nrdata_ = zeros<int>({ nest_ });
 
         auto ier = detail::fpcurf0(x_, y_, w_, m_, xb_, xe_, k_, s_, nest_,
-                                n_, t_, c_, fp_, fpint_, nrdata_);
+                                   n_, t_, c_, fp_, fpint_, nrdata_);
 
         t_ = view(t_, range(0, n_));
         c_ = view(c_, range(0, n_));
 
         state_ = INITIALIZED;
+    }
+
+    // Get a deinitialized version of the class.
+    //
+    inline UnivariateSpline& reset(const UnivariateSpline& self)
+    {
+        state_ = UNINITIALIZED;
+        return *this;
     }
 };
 
