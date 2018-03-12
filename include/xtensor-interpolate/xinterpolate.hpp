@@ -10,6 +10,8 @@
 // https://github.com/rjsberry/xtensor-interpolate/blob/master/LICENSE)
 //
 
+#include <map>
+#include <string>
 #include <tuple>
 
 #include "xtensor/xtensor.hpp"
@@ -131,6 +133,7 @@ class UnivariateSpline : public Spline
     double             xe_;
     int                k_;
     double             s_;
+    int                ext_;
 
     // Variable data (subject to modification by FITPACK).
     int                nest_;
@@ -157,6 +160,7 @@ class UnivariateSpline : public Spline
         , xe_(x[x.shape()[0] - 1])
         , k_(3)
         , s_(static_cast<double>(x.shape()[0]))
+        , ext_(0)
         , Spline()
     {
         XTENSOR_ASSERT(x_.shape()[0] == y_.shape()[0]);
@@ -198,6 +202,27 @@ class UnivariateSpline : public Spline
         return *this;
     }
 
+    inline auto set_extrapolation_mode(int ext)
+    {
+        if (0 <= ext && ext <= 3)
+        {
+            ext_ = ext;
+            state_ = UNINITIALIZED;
+        }
+        return *this;
+    }
+
+    inline auto set_extrapolation_mode(const std::string& ext)
+    {
+        std::map<std::string, int> ext_map =
+        {
+            {"extrapolate", 0}, {"zeros", 1}, {"raise", 2}, {"const", 3}
+        };
+        ext_ = ext_map.at(ext);
+        state_ = UNINITIALIZED;
+        return *this;
+    }
+
     // Evaluate the spline (or it's nu-th derivate) at positions given by x.
     //
     xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
@@ -211,7 +236,7 @@ class UnivariateSpline : public Spline
             initialize();
         }
         auto tck = std::make_tuple(t_, c_, k_);
-        return detail::splev(x, tck, nu);
+        return detail::splev(x, tck, nu, ext_);
     }
 
   private:
