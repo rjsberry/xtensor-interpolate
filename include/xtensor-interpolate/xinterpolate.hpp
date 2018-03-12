@@ -101,44 +101,7 @@ auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0
 
 class Spline
 {
-  public:
-    virtual xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0) = 0;
-};
-
-// One-dimensional smoothing spline fit to a given set of data points.
-//
-class UnivariateSpline : public Spline
-{
-  public:
-
-    // Construct a `UnivariateSpline` object.
-    //
-    // @param [in] x, y
-    //     The data points defining a curve y = f(x).
-    //
-    UnivariateSpline(const xtensor<double, 1>& x, const xtensor<double, 1>& y);
-
-    // Optional setters to be chained during object instantiation.
-    //
-    // Can also be used to alter spline object parameters after initial
-    // instantiation, however, this will require re-calculation of spline
-    // properties using the FC interface.
-    //
-    inline auto set_weights(const xtensor<double, 1>& w);
-    inline auto set_bbox(const xtensor<double, 1>& bbox);
-    inline auto set_order(int k);
-    inline auto set_smoothing_factor(double s);
-
-    // Evaluate the spline (or it's nu-th derivate) at positions given by x.
-    //
-    xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0);
-
-  private:
-
-    // Re-evaluate `tck` based on spline parameters.
-    //
-    void initialize(void);
-
+  protected:
     enum State
     {
         UNINITIALIZED,
@@ -147,6 +110,18 @@ class UnivariateSpline : public Spline
 
     State state_;
 
+  public:
+    
+    Spline(void) : state_(UNINITIALIZED) {}
+
+    virtual xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0) = 0;
+};
+
+// One-dimensional smoothing spline fit to a given set of data points.
+//
+class UnivariateSpline : public Spline
+{
+  protected:
     // Required interpolation parameters.
     xtensor<double, 1> x_;
     xtensor<double, 1> y_;
@@ -165,87 +140,105 @@ class UnivariateSpline : public Spline
     double             fp_;
     xtensor<double, 1> fpint_;
     xtensor<int, 1> nrdata_;
+
+  public:
+
+    // Construct a `UnivariateSpline` object.
+    //
+    // @param [in] x, y
+    //     The data points defining a curve y = f(x).
+    //
+    UnivariateSpline(const xtensor<double, 1>& x, const xtensor<double, 1>& y)
+        : x_(x)
+        , y_(y)
+        , w_(ones<double>({ x.shape()[0] }))
+        , m_(static_cast<int>(x.shape()[0]))
+        , xb_(x[0])
+        , xe_(x[x.shape()[0] - 1])
+        , k_(3)
+        , s_(static_cast<double>(x.shape()[0]))
+        , Spline()
+    {
+        XTENSOR_ASSERT(x_.shape()[0] == y_.shape()[0]);
+    }
+
+    // Optional setters to be chained during object instantiation.
+    //
+    // Can also be used to alter spline object parameters after
+    // instantiation, however, this will require re-calculation of spline
+    // properties with FITPACK.
+
+    inline auto set_weights(const xtensor<double, 1>& w)
+    {
+        XTENSOR_ASSERT(w.shape()[0] == m_);
+        w_ = w;
+        state_ = UNINITIALIZED;
+        return *this;
+    }
+
+    inline auto set_bounds(double begin, double end)
+    {
+        xb_ = begin;
+        xe_ = end;
+        state_ = UNINITIALIZED;
+        return *this;
+    }
+
+    inline auto set_order(int k)
+    {
+        k_ = k;
+        state_ = UNINITIALIZED;
+        return *this;
+    }
+
+    inline auto set_smoothing_factor(double s)
+    {
+        s_ = s;
+        state_ = UNINITIALIZED;
+        return *this;
+    }
+
+    // Evaluate the spline (or it's nu-th derivate) at positions given by x.
+    //
+    xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
+    {
+        if (!x.shape()[0])
+        {
+            return {};
+        }
+        if (state_ == UNINITIALIZED)
+        {
+            initialize();
+        }
+        auto tck = std::make_tuple(t_, c_, k_);
+        return detail::splev(x, tck, nu);
+    }
+
+  private:
+
+    // Re-evaluate `tck` based on spline parameters.
+    //
+    void initialize(void)
+    {
+        nest_ = (s_) ? std::max(m_/2, 2*(k_+1)) : m_ + k_ + 1;
+        XTENSOR_ASSERT(nest_ >= 2*(k_+1));
+
+        n_ = 0;
+        t_ = zeros<double>({ nest_ });
+        c_ = zeros<double>({ nest_ });
+        fp_ = 0;
+        fpint_ = zeros<double>({ nest_ });
+        nrdata_ = zeros<int>({ nest_ });
+
+        auto ier = detail::fpcurf0(x_, y_, w_, m_, xb_, xe_, k_, s_, nest_,
+                                n_, t_, c_, fp_, fpint_, nrdata_);
+
+        t_ = view(t_, range(0, n_));
+        c_ = view(c_, range(0, n_));
+
+        state_ = INITIALIZED;
+    }
 };
-
-UnivariateSpline::UnivariateSpline(const xtensor<double, 1>& x,
-                                   const xtensor<double, 1>& y)
-    : x_(x)
-    , y_(y)
-    , w_(ones<double>({ x.shape()[0] }))
-    , m_(static_cast<int>(x.shape()[0]))
-    , xb_(x[0])
-    , xe_(x[x.shape()[0] - 1])
-    , k_(3)
-    , s_(static_cast<double>(x.shape()[0]))
-    , state_(UNINITIALIZED)
-{
-    XTENSOR_ASSERT(x_.shape()[0] == y_.shape()[0]);
-}
-
-inline auto UnivariateSpline::set_weights(const xtensor<double, 1>& w)
-{
-    XTENSOR_ASSERT(w.shape()[0] == m_);
-    w_ = w;
-    state_ = UNINITIALIZED;
-    return *this;
-}
-
-inline auto UnivariateSpline::set_bbox(const xtensor<double, 1>& bbox)
-{
-    xb_ = bbox[0];
-    xe_ = bbox[1];
-    state_ = UNINITIALIZED;
-    return *this;
-}
-
-inline auto UnivariateSpline::set_order(int k)
-{
-    k_ = k;
-    state_ = UNINITIALIZED;
-    return *this;
-}
-
-inline auto UnivariateSpline::set_smoothing_factor(double s)
-{
-    s_ = s;
-    state_ = UNINITIALIZED;
-    return *this;
-}
-
-xtensor<double, 1> UnivariateSpline::operator() (xtensor<double, 1>& x, int nu)
-{
-    if (!x.shape()[0])
-    {
-        return {};
-    }
-    if (state_ == UNINITIALIZED)
-    {
-        initialize();
-    }
-    auto tck = std::make_tuple(t_, c_, k_);
-    return detail::splev(x, tck, nu);
-}
-
-void UnivariateSpline::initialize(void)
-{
-    nest_ = (s_) ? std::max(m_/2, 2*(k_+1)) : m_ + k_ + 1;
-    XTENSOR_ASSERT(nest_ >= 2*(k_+1));
-
-    n_ = 0;
-    t_ = zeros<double>({ nest_ });
-    c_ = zeros<double>({ nest_ });
-    fp_ = 0;
-    fpint_ = zeros<double>({ nest_ });
-    nrdata_ = zeros<int>({ nest_ });
-
-    auto ier = detail::fpcurf0(x_, y_, w_, m_, xb_, xe_, k_, s_, nest_,
-                               n_, t_, c_, fp_, fpint_, nrdata_);
-
-    t_ = view(t_, range(0, n_));
-    c_ = view(c_, range(0, n_));
-
-    state_ = INITIALIZED;
-}
 
 }  // namespace interpolate
 
