@@ -82,15 +82,6 @@ auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0
     auto c = std::get<1>(tck);
     auto k = std::get<2>(tck);
 
-    if (!(0 <= der && der <= k))
-    {
-        throw std::out_of_range("der");
-    }
-    if (!(0 <= ext && ext <= 3))
-    {
-        throw std::out_of_range("ext");
-    }
-
     xtensor<double, 1> y = zeros<double>({ static_cast<std::size_t>(m) });
     auto ier = 0;
 
@@ -176,6 +167,10 @@ class UnivariateSpline : public Spline
 
     inline auto set_order(int k)
     {
+        if (!(1 <= k && k <= 5))
+        {
+            throw std::out_of_range("order must be in {1, 2, 3, 4, 5}");
+        }
         k_ = k;
         return reset(*this);
     }
@@ -188,10 +183,11 @@ class UnivariateSpline : public Spline
 
     inline auto set_extrapolation_mode(int ext)
     {
-        if (0 <= ext && ext <= 3)
+        if (!(0 <= ext && ext <= 3))
         {
-            ext_ = ext;
+            throw std::out_of_range("extrapolation mode must be in {0, 1, 2, 3}");
         }
+        ext_ = ext;
         return reset(*this);
     }
 
@@ -209,6 +205,10 @@ class UnivariateSpline : public Spline
     //
     inline xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
     {
+        if (!(nu <= k_))
+        {
+            throw std::out_of_range("derivative must be <= smoothing factor");
+        }
         if (!x.shape()[0])
         {
             return {};
