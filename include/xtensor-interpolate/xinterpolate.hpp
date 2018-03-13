@@ -103,20 +103,8 @@ auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0
 
 class Spline
 {
-  protected:
-    enum State
-    {
-        UNINITIALIZED,
-        INITIALIZED
-    };
-
-    State state_;
-
   public:
-    
-    Spline(void) : state_(UNINITIALIZED) {}
-
-    virtual xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0) = 0;
+    virtual inline xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0) = 0;
 };
 
 // One-dimensional smoothing spline fit to a given set of data points.
@@ -136,6 +124,7 @@ class UnivariateSpline : public Spline
     int                ext_;
 
     // Variable data (subject to modification by FITPACK).
+    bool               req_eval_;
     int                nest_;
     int                n_;
     xtensor<double, 1> t_;
@@ -145,13 +134,12 @@ class UnivariateSpline : public Spline
     xtensor<int, 1> nrdata_;
 
   public:
-
     // Construct a `UnivariateSpline` object.
     //
     // @param [in] x, y
     //     The data points defining a curve y = f(x).
     //
-    UnivariateSpline(const xtensor<double, 1>& x, const xtensor<double, 1>& y)
+    inline UnivariateSpline(const xtensor<double, 1>& x, const xtensor<double, 1>& y)
         : x_(x)
         , y_(y)
         , w_(ones<double>({ x.shape()[0] }))
@@ -161,7 +149,7 @@ class UnivariateSpline : public Spline
         , k_(3)
         , s_(static_cast<double>(x.shape()[0]))
         , ext_(0)
-        , Spline()
+        , req_eval_(true)
     {
         XTENSOR_ASSERT(x_.shape()[0] == y_.shape()[0]);
     }
@@ -219,25 +207,24 @@ class UnivariateSpline : public Spline
 
     // Evaluate the spline (or it's nu-th derivate) at positions given by x.
     //
-    xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
+    inline xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
     {
         if (!x.shape()[0])
         {
             return {};
         }
-        if (state_ == UNINITIALIZED)
+        if (req_eval_)
         {
-            initialize();
+            evaluate();
         }
         auto tck = std::make_tuple(t_, c_, k_);
         return detail::splev(x, tck, nu, ext_);
     }
 
   private:
-
-    // Re-evaluate `tck` based on spline parameters.
+    // Evaluate `tck` based on spline parameters.
     //
-    void initialize(void)
+    void evaluate(void)
     {
         nest_ = (s_) ? std::max(m_/2, 2*(k_+1)) : m_ + k_ + 1;
         XTENSOR_ASSERT(nest_ >= 2*(k_+1));
@@ -255,14 +242,14 @@ class UnivariateSpline : public Spline
         t_ = view(t_, range(0, n_));
         c_ = view(c_, range(0, n_));
 
-        state_ = INITIALIZED;
+        req_eval_ = false;
     }
 
     // Get a deinitialized version of the class.
     //
     inline UnivariateSpline& reset(const UnivariateSpline& self)
     {
-        state_ = UNINITIALIZED;
+        req_eval_ = true;
         return *this;
     }
 };
