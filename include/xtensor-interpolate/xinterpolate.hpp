@@ -213,11 +213,7 @@ class UnivariateSpline : public Spline
         {
             return {};
         }
-        if (req_eval_)
-        {
-            evaluate();
-        }
-        auto tck = std::make_tuple(t_, c_, k_);
+        auto tck = get_tck();
         return detail::splev(x, tck, nu, ext_);
     }
 
@@ -243,6 +239,17 @@ class UnivariateSpline : public Spline
         c_ = view(c_, range(0, n_));
 
         req_eval_ = false;
+    }
+
+    // Get the `tck` tuple used for spline interpolation.
+    //
+    inline std::tuple<xtensor<double, 1>, xtensor<double, 1>, int> get_tck(void)
+    {
+        if (req_eval_)
+        {
+            evaluate();
+        }
+        return {t_, c_, k_};
     }
 
     // Get a deinitialized version of the class.
