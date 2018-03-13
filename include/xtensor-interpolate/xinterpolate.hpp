@@ -207,7 +207,7 @@ class UnivariateSpline : public Spline
     {
         if (!(nu <= k_))
         {
-            throw std::out_of_range("derivative must be <= smoothing factor");
+            throw std::out_of_range("derivative must be <= order");
         }
         if (!x.shape()[0])
         {
