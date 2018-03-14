@@ -143,7 +143,7 @@ class UnivariateSpline : public virtual Spline
     xtensor<double, 1> c_;
     double             fp_;
     xtensor<double, 1> fpint_;
-    xtensor<int, 1> nrdata_;
+    xtensor<int, 1>    nrdata_;
 
   public:
 
@@ -352,7 +352,7 @@ class UnivariateSpline : public virtual Spline
         {
             evaluate();
         }
-        return {t_, c_, k_};
+        return std::make_tuple(t_, c_, k_);
     }
 
     /// Get a deinitialized version of the class.
