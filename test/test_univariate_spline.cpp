@@ -11,7 +11,7 @@
 
 #include "gtest/gtest.h"
 
-#define XTENSOR_ENABLE_ASSERT 
+#define XTENSOR_ENABLE_ASSERT
 #include "xtensor/xexception.hpp"
 #include "xtensor/xmath.hpp"
 #include "xtensor/xrandom.hpp"
@@ -45,7 +45,7 @@ TEST(univariate_spline, smoke_test)
         xtensor<double, 1> x_interp = linspace<double>(-M_PI, M_PI, test_arr_len);
         auto y_interp = s(x_interp);
 
-        EXPECT_TRUE(isclose(y_interp, f(x_interp))());
+        EXPECT_TRUE(allclose(y_interp, f(x_interp), 0.005));
     }
 }
 
