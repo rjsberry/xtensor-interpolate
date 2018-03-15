@@ -16,20 +16,21 @@
 
 extern "C" {
 
-void _fc_curfit(int* iopt, int* m, double* x, double* y, double* w,
-                double* xb, double* xe, int* k, double* s, int* nest,
-                int* n, double* t, double* c, double* fp, double* wrk,
-                int* lwrk, int* iwrk, int* ier);
+void _fc_curfit(const int* iopt, const int* m, const double* x, const double* y,
+                const double* w, const double* xb, const double* xe, const int* k,
+                const double* s, const int* nest, int* n, double* t, double* c,
+                double* fp, double* wrk, const int* lwrk, int* iwrk, int* ier);
 
-void _fc_fpcurf(int* iopt, double* x, double* y, double* w, int* m,
-                double* xb, double* xe, int* k, double* s, int* nest,
-                double* tol, int* maxit, int* k1, int* k2, int* n,
-                double* t, double* c, double* fp, double* fpint,
-                double* wrk, double* wrkn, double* wrknk2, double* wrkn2k2,
-                double* wrkn3k2, int* nrdata, int* ier);
+void _fc_fpcurf(const int* iopt, const double* x, const double* y, const double* w,
+                const int* m, const double* xb, const double* xe, const int* k,
+                const double* s, const int* nest, const double* tol,
+                const int* maxit, const int* k1, const int* k2, int* n, double* t,
+                double* c, double* fp, double* fpint, double* wrk, double* wrkn,
+                double* wrknk2, double* wrkn2k2, double* wrkn3k2, int* nrdata,
+                int* ier);
 
-void _fc_splev(double* t, int* n, double* c, int* k, double* x, double* y,
-               int* m, int* e, int* ier);
+void _fc_splev(const double* t, const int* n, const double* c, const int* k,
+               const double* x, double* y, const int* m, const int* e, int* ier);
 
 }  // extern "C"
 

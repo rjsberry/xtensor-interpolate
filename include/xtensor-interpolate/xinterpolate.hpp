@@ -27,10 +27,9 @@ namespace interpolate
 namespace detail
 {
 
-auto fpcurf0(xtensor<double, 1>& x, xtensor<double, 1>& y, xtensor<double, 1>& w,
-             int& m, double& xb, double& xe, int& k, double& s, int& nest,
-             int& n, xtensor<double, 1>& t, xtensor<double, 1>& c, double& fp,
-             xtensor<double, 1>& fpint, xtensor<int, 1>& nrdata,
+auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y, const xtensor<double, 1>& w,
+             int m, double xb, double xe, int k, double s, int nest, int& n, xtensor<double, 1>& t,
+             xtensor<double, 1>& c, double& fp, xtensor<double, 1>& fpint, xtensor<int, 1>& nrdata,
              int iopt = 0, double tol = 0.001, int maxit = 20)
 {
     // Internal data allocations for use in Fortran.
@@ -72,7 +71,10 @@ auto fpcurf0(xtensor<double, 1>& x, xtensor<double, 1>& y, xtensor<double, 1>& w
 ///       * if `3`, return the boundary value.
 ///
 template <class E, class... Args>
-auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0)
+auto splev(const xexpression<E>& x,
+           const std::tuple<Args...>& tck,
+           int der = 0,
+           int ext = 0)
 {
     auto _x = x.derived_cast();
     auto m = static_cast<int>(x.derived_cast().shape()[0]);
@@ -95,7 +97,7 @@ auto splev(xexpression<E>& x, std::tuple<Args...>& tck, int der = 0, int ext = 0
 class Spline
 {
   public:
-    virtual inline xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0) = 0;
+    virtual inline xtensor<double, 1> operator() (const xtensor<double, 1>& x, int nu = 0) = 0;
 };
 
 /// One-dimensional smoothing spline fit to a given set of data points.
@@ -125,15 +127,15 @@ class UnivariateSpline : public virtual Spline
   protected:
 
     // Required interpolation parameters.
-    xtensor<double, 1> x_;
-    xtensor<double, 1> y_;
-    xtensor<double, 1> w_;
-    int                m_;
-    double             xb_;
-    double             xe_;
-    int                k_;
-    double             s_;
-    int                ext_;
+    const xtensor<double, 1> x_;
+    const xtensor<double, 1> y_;
+    xtensor<double, 1>       w_;
+    int                      m_;
+    double                   xb_;
+    double                   xe_;
+    int                      k_;
+    double                   s_;
+    int                      ext_;
 
     // Variable data (subject to modification by FITPACK).
     bool               req_eval_;
@@ -305,7 +307,7 @@ class UnivariateSpline : public virtual Spline
     /// @throw std::out_of_range
     ///     Thrown if the requested derivative is invalid.
     ///
-    inline xtensor<double, 1> operator() (xtensor<double, 1>& x, int nu = 0)
+    inline xtensor<double, 1> operator() (const xtensor<double, 1>& x, int nu = 0)
     {
         if (!(nu <= k_))
         {
