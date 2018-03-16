@@ -111,6 +111,7 @@ set(FC_SYMBOLS
     curfit
     fpcurf
     splev
+    splint
 )
 
 include(FortranCInterface)

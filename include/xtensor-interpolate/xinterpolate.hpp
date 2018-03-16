@@ -51,6 +51,14 @@ auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y, const xte
     return ier;
 }
 
+auto splint(const xtensor<double, 1>& t, const xtensor<double, 1>& c, int n,
+            int k, double a, double b)
+{
+    xtensor<double, 1> wrk = zeros<double>({ n });
+
+    return _fc_splint(&t[0], &n, &c[0], &k, &a, &b, &wrk[0]);
+}
+
 /// Evaluate a B-Spline or its derivatives.
 ///
 /// @param [in] x
@@ -319,6 +327,24 @@ class UnivariateSpline : public virtual Spline
         }
         auto tck = get_tck();
         return detail::splev(x, tck, nu, ext_);
+    }
+
+    /// Return the definite integral of the spline between two points.
+    ///
+    /// @param [in] a
+    ///     Lower limit of integration.
+    /// @param [in] b
+    ///     Upper limit of integration.
+    ///
+    /// @note This routine assumes that the spline is **0** outside of its data limits.
+    ///
+    inline double integral(double a, double b)
+    {
+        if (req_eval_)
+        {
+            evaluate();
+        }
+        return detail::splint(t_, c_, n_, k_, a, b);
     }
 
   private:
