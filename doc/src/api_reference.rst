@@ -5,12 +5,23 @@
    The full license is in the file LICENSE, distributed with this software.
 
 
+The ``xtensor-interpolate`` API is closely modelled after Python's ``scipy.interpolate``.
+
 API Reference
 =============
 
-Defined in `xtensor-interpolate/xinterpolate.hpp`.
+Functional Interface
+--------------------
 
-The API is closely modelled after Python's `scipy.interpolate`.
+Defined in ``xtensor-interpolate/xinterpolate.hpp``.
+
+.. doxygenfunction:: xt::interpolate::splev
+    :project: xtensor-interpolate
+
+Object-Oriented Interface
+-------------------------
+
+Defined in ``xtensor-interpolate/xspline.hpp``.
 
 .. doxygenclass:: xt::interpolate::UnivariateSpline
     :project: xtensor-interpolate

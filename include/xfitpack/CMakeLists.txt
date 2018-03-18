@@ -110,6 +110,7 @@ enable_language(CXX)
 set(FC_SYMBOLS
     curfit
     fpcurf
+    spalde
     splev
     splint
 )

@@ -17,7 +17,7 @@
 #include "xtensor/xrandom.hpp"
 #include "xtensor/xtensor.hpp"
 
-#include "xtensor-interpolate/xinterpolate.hpp"
+#include "xtensor-interpolate/xspline.hpp"
 
 namespace xt
 {

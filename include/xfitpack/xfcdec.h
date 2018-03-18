@@ -29,6 +29,9 @@ void _fc_fpcurf(const int* iopt, const double* x, const double* y, const double*
                 double* wrknk2, double* wrkn2k2, double* wrkn3k2, int* nrdata,
                 int* ier);
 
+void _fc_spalde(const double* t, const int* n, const double* c, const int* k1,
+                const double* x, double* d, int* ier);
+
 double _fc_splint(const double* t, const int* n, const double* c, const int* k1,
                   const double* a, const double* b, double* wrk);
 
