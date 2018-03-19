@@ -25,17 +25,22 @@ namespace xt
 namespace interpolate
 {
 
-// Find the B-spline representation of a 1-D curve.
-//
-// Given the set of data points `(x[i], y[i]) determine a smooth spline
-// approximation of degree k on the interval `xb <= x <= xe`.
-//
-// @param [in] x, y
-//     The data points defining a curve y = f(x).
-// @param [in] k
-//     The order of the spline fit. It is recommended to use cubic splines.
-//     1 <= k <= 5
-//
+/// Find the B-spline representation of a 1-D curve.
+///
+/// Given the set of data points `(x[i], y[i])` determine a smooth spline
+/// approximation of degree k on the interval `xb <= x <= xe`.
+///
+/// @param [in] x,y
+///     The data points defining a curve y = f(x).
+/// @param [in] k
+///     The order of the spline fit. It is recommended to use cubic splines.
+///     1 <= k <= 5
+///
+/// @return `tck`:
+///     Tuple containing the vector of knots, `t`, the B-spline coefficients,
+///     `c`, and the degree of the spline, `k`. It is not recommended to
+///     manually adjust any of these values.
+///
 template <class E1, class E2>
 auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3)
 {
@@ -93,6 +98,9 @@ auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3)
 ///       * if `1`, return 0
 ///       * if `2`, throw exception.
 ///       * if `3`, return the boundary value.
+///
+/// @returns `ys`:
+///     An array of interpolated values corresponding to the input parameter `x`.
 ///
 template <class E, class... Args>
 auto splev(const xexpression<E>& x,

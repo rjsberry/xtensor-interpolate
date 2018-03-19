@@ -15,6 +15,9 @@ Functional Interface
 
 Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 
+.. doxygenfunction:: xt::interpolate::splrep
+    :project: xtensor-interpolate
+
 .. doxygenfunction:: xt::interpolate::splev
     :project: xtensor-interpolate
 
