@@ -47,13 +47,11 @@ namespace interpolate
 template <class E1, class E2>
 auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
 {
-    auto _x = x.derived_cast();
-    auto _y = y.derived_cast();
-    auto m = static_cast<int>(_x.shape()[0]);
+    auto m = static_cast<int>(x.derived_cast().shape()[0]);
 
     auto s = 0.0;
-    auto xb = _x[0];
-    auto xe = _x[m-1];
+    auto xb = x.derived_cast()[0];
+    auto xe = x.derived_cast()[m - 1];
     auto iopt = 0;
 
     // Weights used in computing the weighted least-squares spline fit.
@@ -74,8 +72,9 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
     auto n = 0;
     auto ier = 0;
 
-    _fc_curfit(&iopt, &m, &_x[0], &_y[0], &w[0], &xb, &xe, &k, &s, &nest, &n,
-               &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier);
+    _fc_curfit(&iopt, &m, &x.derived_cast()[0], &y.derived_cast()[0], &w[0],
+               &xb, &xe, &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk,
+               &iwrk[0], &ier);
 
     xtensor<double, 1> _t = view(t, range(0, n));
     xtensor<double, 1> _c = view(c, range(0, n));
@@ -111,18 +110,14 @@ auto splev(const xexpression<E>& x,
            int der = 0,
            int ext = 0)
 {
-    auto _x = x.derived_cast();
     auto m = static_cast<int>(x.derived_cast().shape()[0]);
-
-    auto t = std::get<0>(tck);
-    auto n = static_cast<int>(t.size());
-    auto c = std::get<1>(tck);
-    auto k = std::get<2>(tck);
+    auto n = static_cast<int>(std::get<0>(tck).size());
 
     xtensor<double, 1> y = zeros<double>({ static_cast<std::size_t>(m) });
     auto ier = 0;
 
-    _fc_splev(&t[0], &n, &c[0], &k, &_x[0], &y[0], &m, &ext, &ier);
+    _fc_splev(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
+              &x.derived_cast()[0], &y[0], &m, &ext, &ier);
 
     return y;
 }
@@ -143,14 +138,12 @@ auto splev(const xexpression<E>& x,
 template <class... Args>
 auto splint(double a, double b, const std::tuple<Args...>& tck)
 {
-    auto t = std::get<0>(tck);
-    auto n = static_cast<int>(t.size());
-    auto c = std::get<1>(tck);
-    auto k = std::get<2>(tck);
+    auto n = static_cast<int>(std::get<0>(tck).size());
 
     xtensor<double, 1> wrk = zeros<double>({ n });
 
-    return _fc_splint(&t[0], &n, &c[0], &k, &a, &b, &wrk[0]);
+    return _fc_splint(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0],
+                      &std::get<2>(tck), &a, &b, &wrk[0]);
 }
 
 /// Evaluate all derivatives of a B-spline.
@@ -165,19 +158,16 @@ template <class E, class... Args>
 auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 {
     auto m = x.derived_cast().shape()[0];
+    auto n = static_cast<int>(std::get<0>(tck).size());
 
-    auto t = std::get<0>(tck);
-    auto n = static_cast<int>(t.size());
-    auto c = std::get<1>(tck);
-    auto k = std::get<2>(tck);
-
-    auto k1 = k + 1;
+    auto k1 = std::get<2>(tck) + 1;
 
     xarray<double> d = zeros<double>({ static_cast<std::size_t>(k1) * m });
     for (std::size_t i = 0; i < m; ++i)
     {
         auto ier = 0;
-        _fc_spalde(&t[0], &n, &c[0], &k1, &x.derived_cast()[i], &d[i * k1], &ier);
+        _fc_spalde(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &k1,
+                   &x.derived_cast()[i], &d[i * k1], &ier);
     }
     d.reshape({ m, static_cast<std::size_t>(k1) });
 
