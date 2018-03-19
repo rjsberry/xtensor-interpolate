@@ -31,6 +31,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 set(XTENSOR_INTERPOLATE_TESTS
     main.cpp
+    test_functional.cpp
     test_univariate_spline.cpp
 )
 

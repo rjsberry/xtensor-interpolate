@@ -14,6 +14,7 @@
 #include <string>
 #include <tuple>
 
+#include "xtensor/xexpression.hpp"
 #include "xtensor/xtensor.hpp"
 #include "xtensor/xview.hpp"
 
@@ -23,6 +24,56 @@ namespace xt
 {
 namespace interpolate
 {
+
+// Find the B-spline representation of a 1-D curve.
+//
+// Given the set of data points `(x[i], y[i]) determine a smooth spline
+// approximation of degree k on the interval `xb <= x <= xe`.
+//
+// @param [in] x, y
+//     The data points defining a curve y = f(x).
+// @param [in] k
+//     The order of the spline fit. It is recommended to use cubic splines.
+//     1 <= k <= 5
+//
+template <class E1, class E2>
+auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3)
+{
+    auto _x = x.derived_cast();
+    auto _y = y.derived_cast();
+    auto m = static_cast<int>(_x.shape()[0]);
+
+    auto s = 0.0;
+    auto xb = _x[0];
+    auto xe = _x[m-1];
+    auto iopt = 0;
+
+    // Weights used in computing the weighted least-squares spline fit.
+    xtensor<double, 1> w = ones<double>({ static_cast<std::size_t>(m) });
+
+    auto nest = std::max(m + k + 1, 2*k + 3);
+    // Knots.
+    xtensor<double, 1> t = zeros<double>({ static_cast<std::size_t>(nest) });
+    // Coefficients.
+    xtensor<double, 1> c = zeros<double>({ static_cast<std::size_t>(nest) });
+
+    // Working memory.
+    auto lwrk = m*(k + 1) + nest*(7 + 3*k);
+    xtensor<double, 1> wrk = zeros<double>({ static_cast<std::size_t>(lwrk) });
+    xtensor<int, 1> iwrk = zeros<int>({ static_cast<std::size_t>(lwrk) });
+
+    auto fp = 0.0;
+    auto n = 0;
+    auto ier = 0;
+
+    _fc_curfit(&iopt, &m, &_x[0], &_y[0], &w[0], &xb, &xe, &k, &s, &nest, &n,
+               &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier);
+
+    xtensor<double, 1> _t = view(t, range(0, n));
+    xtensor<double, 1> _c = view(c, range(0, n));
+
+    return std::make_tuple(_t, _c, k);
+}
 
 /// Evaluate a B-Spline or its derivatives.
 ///
