@@ -67,4 +67,21 @@ TEST(smoke_test, splrep_splint)
     }
 }
 
+TEST(smoke_test, splrep_spalde)
+{
+    xtensor<double, 1> x = linspace<double>(0, ARR_LEN/10, ARR_LEN);
+    xtensor<double, 1> y = x;
+
+    auto tck = interpolate::splrep(x, y);
+
+    xtensor<double, 1> dx = arange<double>({ ARR_LEN/10 });
+    auto dy = interpolate::spalde(dx, tck);
+
+    for (std::size_t i; i < ARR_LEN/10; ++i)
+    {
+        xtensor<double, 1> expected = { dx[i], 1, 0, 0 };
+        EXPECT_TRUE(allclose(expected, dy[i]));
+    }
+}
+
 }  // namespace xt

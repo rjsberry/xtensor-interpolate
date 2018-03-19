@@ -52,20 +52,6 @@ auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y, const xte
     return ier;
 }
 
-auto spalde(const xtensor<double, 1>& t, const xtensor<double, 1>& c, int n,
-            int k, const xtensor<double, 1>& x)
-{
-    auto k1 = k + 1;
-    xtensor<double, 1> d = zeros<double>({ k1 });
-
-    auto ier = 0;
-
-    _fc_spalde(&t[0], &n, &c[0], &k1, &x[0], &d[0], &ier);
-
-    return d;
-}
-
-
 }  // namespace detail
 
 class Spline
@@ -314,13 +300,9 @@ class UnivariateSpline : public virtual Spline
     /// @param [in] x
     ///     The point at which to evaluate derivates.
     ///
-    inline xtensor<double, 1> derivatives(double x)
+    inline auto derivatives(double x)
     {
-        if (req_eval_)
-        {
-            evaluate();
-        }
-        return detail::spalde(t_, c_, n_, k_, x_);
+        return spalde(x_, get_tck());
     }
 
   private:

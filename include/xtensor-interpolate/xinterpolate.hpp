@@ -13,8 +13,11 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <vector>
 
+#include "xtensor/xarray.hpp"
 #include "xtensor/xexpression.hpp"
+#include "xtensor/xlayout.hpp"
 #include "xtensor/xtensor.hpp"
 #include "xtensor/xview.hpp"
 
@@ -36,13 +39,13 @@ namespace interpolate
 ///     The order of the spline fit. It is recommended to use cubic splines.
 ///     1 <= k <= 5
 ///
-/// @return `tck`:
+/// @returns `tck`:
 ///     Tuple containing the vector of knots, `t`, the B-spline coefficients,
 ///     `c`, and the degree of the spline, `k`. It is not recommended to
 ///     manually adjust any of these values.
 ///
 template <class E1, class E2>
-auto splrep(xexpression<E1>& x, xexpression<E2>& y, int k = 3)
+auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
 {
     auto _x = x.derived_cast();
     auto _y = y.derived_cast();
@@ -148,6 +151,37 @@ auto splint(double a, double b, const std::tuple<Args...>& tck)
     xtensor<double, 1> wrk = zeros<double>({ n });
 
     return _fc_splint(&t[0], &n, &c[0], &k, &a, &b, &wrk[0]);
+}
+
+/// Evaluate all derivatives of a B-spline.
+///
+/// @param [in] x
+///     A set of points at which to evaluate the derivatives.
+/// @param [in] tck
+///     A tuple containing the knots, B-spline coefficients, and degree of
+///     the spline.
+///
+template <class E, class... Args>
+auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
+{
+    auto m = x.derived_cast().shape()[0];
+
+    auto t = std::get<0>(tck);
+    auto n = static_cast<int>(t.size());
+    auto c = std::get<1>(tck);
+    auto k = std::get<2>(tck);
+
+    auto k1 = k + 1;
+
+    xarray<double> d = zeros<double>({ static_cast<std::size_t>(k1) * m });
+    for (std::size_t i = 0; i < m; ++i)
+    {
+        auto ier = 0;
+        _fc_spalde(&t[0], &n, &c[0], &k1, &x.derived_cast()[i], &d[i * k1], &ier);
+    }
+    d.reshape({ m, static_cast<std::size_t>(k1) });
+
+    return d;
 }
 
 }  // namespace interpolate
