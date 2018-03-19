@@ -65,13 +65,6 @@ auto spalde(const xtensor<double, 1>& t, const xtensor<double, 1>& c, int n,
     return d;
 }
 
-auto splint(const xtensor<double, 1>& t, const xtensor<double, 1>& c, int n,
-            int k, double a, double b)
-{
-    xtensor<double, 1> wrk = zeros<double>({ n });
-
-    return _fc_splint(&t[0], &n, &c[0], &k, &a, &b, &wrk[0]);
-}
 
 }  // namespace detail
 
@@ -313,11 +306,7 @@ class UnivariateSpline : public virtual Spline
     ///
     inline double integral(double a, double b)
     {
-        if (req_eval_)
-        {
-            evaluate();
-        }
-        return detail::splint(t_, c_, n_, k_, a, b);
+        return splint(a, b, get_tck());
     }
 
     /// Return all derivatives of the spline at point `x`.

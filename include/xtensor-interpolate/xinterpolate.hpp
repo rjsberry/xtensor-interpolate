@@ -124,6 +124,32 @@ auto splev(const xexpression<E>& x,
     return y;
 }
 
+/// Evaluate the definite integral of a B-spline between two points.
+///
+/// @param [in] ab
+///     The endpoints defining the bounds of integration.
+/// @param [in] tck
+///     A tuple containing the knots, B-spline coefficients, and degree of
+///     the spline.
+///
+/// @returns
+///     The resultant integral.
+///
+/// @note This routine assums the spline is **0** outside of its data points.
+///
+template <class... Args>
+auto splint(double a, double b, const std::tuple<Args...>& tck)
+{
+    auto t = std::get<0>(tck);
+    auto n = static_cast<int>(t.size());
+    auto c = std::get<1>(tck);
+    auto k = std::get<2>(tck);
+
+    xtensor<double, 1> wrk = zeros<double>({ n });
+
+    return _fc_splint(&t[0], &n, &c[0], &k, &a, &b, &wrk[0]);
+}
+
 }  // namespace interpolate
 
 }  // namespace xt

@@ -21,6 +21,9 @@ Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 .. doxygenfunction:: xt::interpolate::splev
     :project: xtensor-interpolate
 
+.. doxygenfunction:: xt::interpolate::splint
+    :project: xtensor-interpolate
+
 Object-Oriented Interface
 -------------------------
 
