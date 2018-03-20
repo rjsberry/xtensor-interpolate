@@ -12,6 +12,7 @@
 #define XTENSOR_ENABLE_ASSERT
 #include "xtensor/xexception.hpp"
 #include "xtensor/xmath.hpp"
+#include "xtensor/xstrided_view.hpp"
 #include "xtensor/xtensor.hpp"
 
 #include "xtensor-interpolate/xinterpolate.hpp"
@@ -77,10 +78,11 @@ TEST(smoke_test, splrep_spalde)
     xtensor<double, 1> dx = arange<double>({ ARR_LEN/10 });
     auto dy = interpolate::spalde(dx, tck);
 
-    for (std::size_t i; i < ARR_LEN/10; ++i)
+    for (std::size_t i = 0; i < ARR_LEN/10; ++i)
     {
         xtensor<double, 1> expected = { dx[i], 1, 0, 0 };
-        EXPECT_TRUE(allclose(expected, dy[i]));
+
+        EXPECT_TRUE(allclose(expected, flatten(view(dy, range(i, i+1), all()))));
     }
 }
 
