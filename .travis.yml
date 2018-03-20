@@ -1,8 +1,4 @@
 language: cpp
-branches:
-  only:
-    - master
-    - travis-debug
 matrix:
   include:
     - os: linux
