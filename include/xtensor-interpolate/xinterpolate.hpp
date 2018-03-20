@@ -39,10 +39,9 @@ namespace interpolate
 ///     The order of the spline fit. It is recommended to use cubic splines.
 ///     1 <= k <= 5
 ///
-/// @returns `tck`:
-///     Tuple containing the vector of knots, `t`, the B-spline coefficients,
-///     `c`, and the degree of the spline, `k`. It is not recommended to
-///     manually adjust any of these values.
+/// @returns A tuple containing the vector of knots, `t`, the B-spline
+///          coefficients, `c`, and the degree of the spline, `k`. It is not
+//           recommended to manually adjust any of these values.
 ///
 template <class E1, class E2>
 auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
@@ -101,8 +100,8 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
 ///       * if `2`, throw exception.
 ///       * if `3`, return the boundary value.
 ///
-/// @returns `ys`:
-///     An array of interpolated values corresponding to the input parameter `x`.
+/// @returns An array of interpolated values corresponding to the input
+///          parameter `x`.
 ///
 template <class E, class... Args>
 auto splev(const xexpression<E>& x,
@@ -124,14 +123,13 @@ auto splev(const xexpression<E>& x,
 
 /// Evaluate the definite integral of a B-spline between two points.
 ///
-/// @param [in] ab
+/// @param [in] a,b
 ///     The endpoints defining the bounds of integration.
 /// @param [in] tck
 ///     A tuple containing the knots, B-spline coefficients, and degree of
 ///     the spline.
 ///
-/// @returns
-///     The resultant integral.
+/// @returns The resultant integral.
 ///
 /// @note This routine assums the spline is **0** outside of its data points.
 ///
@@ -153,6 +151,9 @@ auto splint(double a, double b, const std::tuple<Args...>& tck)
 /// @param [in] tck
 ///     A tuple containing the knots, B-spline coefficients, and degree of
 ///     the spline.
+///
+/// @returns An `xarray` of all derivatives of the spline up to order `k` for
+///          each point in `x`.
 ///
 template <class E, class... Args>
 auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
