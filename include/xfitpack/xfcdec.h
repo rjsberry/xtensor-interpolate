@@ -12,7 +12,7 @@
 
 // Declarations of free C functions that interface Fortran code.
 
-#include "FCMangle.h"
+#include "xfcmangle.h"
 
 extern "C" {
 

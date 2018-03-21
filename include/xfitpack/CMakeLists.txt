@@ -102,8 +102,9 @@ set(fitpack_SRC
     FITPACK/surfit.f
 )
 
-add_library(fitpack STATIC ${fitpack_SRC})
-set(FITPACK_LIBRARY fitpack PARENT_SCOPE)
+add_library(xfitpack SHARED ${fitpack_SRC})
+set_target_properties(xfitpack PROPERTIES OUTPUT_NAME "xfitpack")
+set(FITPACK_LIBRARY xfitpack PARENT_SCOPE)
 
 enable_language(CXX)
 
@@ -116,8 +117,16 @@ set(FC_SYMBOLS
 )
 
 include(FortranCInterface)
-FortranCInterface_HEADER(${XTENSOR_FITPACK_INTERFACE_INCLUDE_DIR}/FCMangle.h
+FortranCInterface_HEADER(${XTENSOR_FITPACK_INTERFACE_INCLUDE_DIR}/xfcmangle.h
     MACRO_NAMESPACE "FC_"
     SYMBOL_NAMESPACE "_fc_"
     SYMBOLS ${FC_SYMBOLS}
 )
+
+# Installation
+
+set(XTENSOR_INTERPOLATE_FITPACK_INTERFACE_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+
+install(TARGETS xfitpack
+        ARCHIVE DESTINATION ${XTENSOR_INTERPOLATE_FITPACK_INTERFACE_LIBRARY_DIR}
+        LIBRARY DESTINATION ${XTENSOR_INTERPOLATE_FITPACK_INTERFACE_LIBRARY_DIR})

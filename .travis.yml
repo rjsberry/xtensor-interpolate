@@ -38,7 +38,7 @@ install:
   # Build the tests
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DBUILD_TESTS=ON ..
   - make
 script:
   - cd test

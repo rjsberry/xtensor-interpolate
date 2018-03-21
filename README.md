@@ -11,6 +11,22 @@ internal bindings to Paul Dierckx's Fortran package, [FITPACK](http://www.netlib
 The FITPACK library is used in [SciPy](https://github.com/scipy/scipy) to build the back-end of `scipy.interpolate`;
 `xtensor-interpolate` aims to provide a familiar API to anyone experienced with this Python package.
 
+## Installation
+
+On UNIX-like platforms (from the source root directory):
+
+```
+mkdir build
+cd build
+cmake ..
+make install
+```
+
+The `cmake` step can be installed with a number of flags:
+
+- `-DBUILD_TESTS=ON` to build the unit tests. Target them with `make xtest`.
+- `-DCMAKE_INSTALL_PREFIX=...` to change the CMake installation prefix.
+
 ## Development
 
 `xtensor-interpolate` is under heavy development as is **not** currently considered usable.

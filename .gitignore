@@ -1,5 +1,5 @@
 # CMake
 build/
 
-# F-C interface header
-include/xfitpack/FCMangle.h
+# Fortran-C interface header (built with CMake)
+include/xfitpack/xfcmangle.h

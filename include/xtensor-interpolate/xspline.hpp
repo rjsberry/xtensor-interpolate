@@ -28,12 +28,13 @@ namespace interpolate
 namespace detail
 {
 
-auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y, const xtensor<double, 1>& w,
-             int m, double xb, double xe, int k, double s, int nest, int& n, xtensor<double, 1>& t,
-             xtensor<double, 1>& c, double& fp, xtensor<double, 1>& fpint, xtensor<int, 1>& nrdata,
-             int iopt = 0, double tol = 0.001, int maxit = 20)
+auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y,
+             const xtensor<double, 1>& w, int m, double xb, double xe, int k,
+             double s, int nest, int& n, xtensor<double, 1>& t,
+             xtensor<double, 1>& c, double& fp, xtensor<double, 1>& fpint,
+             xtensor<int, 1>& nrdata, int iopt = 0, double tol = 0.001,
+             int maxit = 20)
 {
-    // Internal data allocations for use in Fortran.
     auto k1 = k + 1;
     auto k2 = k + 2;
     xtensor<double, 1> wrk = zeros<double>({ nest*3*k2 + m*k1 });
@@ -57,7 +58,8 @@ auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y, const xte
 class Spline
 {
   public:
-    virtual inline xtensor<double, 1> operator() (const xtensor<double, 1>& x, int nu = 0) = 0;
+    virtual inline xtensor<double, 1> operator() (const xtensor<double, 1>& x,
+                                                  int nu = 0) = 0;
 };
 
 /// One-dimensional smoothing spline fit to a given set of data points.
@@ -73,7 +75,9 @@ class Spline
 ///     xt::xtensor<double, 1> x = xt::linspace(0, 2*M_PI, 100);
 ///     xt::xtensor<double, 1> y = xt::sin(x);
 ///
-///     auto s = xt::interpolate::UnivariateSpline(x, y).set_order(3).set_smoothing_factor(0.0);
+///     auto s = xt::interpolate::UnivariateSpline(x, y)
+///                                   .set_order(3)
+///                                   .set_smoothing_factor(0.0);
 ///
 ///     xt::xtensor<double, 1> xs = xt::linspace(0, 2*M_PI, 1000);
 ///     auto ys = s(xs);
@@ -277,8 +281,7 @@ class UnivariateSpline : public virtual Spline
         {
             return {};
         }
-        auto tck = get_tck();
-        return splev(x, tck, nu, ext_);
+        return splev(x, get_tck(), nu, ext_);
     }
 
     /// Return the definite integral of the spline between two points.

@@ -13,6 +13,12 @@ License
 LICENSE file for details.
 
 .. toctree::
+   :caption: Installation
+   :maxdepth: 2
+
+   installation
+
+.. toctree::
    :caption: USAGE
    :maxdepth: 2
 
