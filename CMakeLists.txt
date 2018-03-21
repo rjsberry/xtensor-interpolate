@@ -38,7 +38,7 @@ OPTION(BUILD_TESTS "xtensor-interpolate test suite" OFF)
 
 if(BUILD_TESTS)
     enable_testing(true)
-    add_subdirectory(test EXCLUDE_FROM_ALL)
+    add_subdirectory(test)
 endif()
 
 # Installation

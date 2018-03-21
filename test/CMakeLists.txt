@@ -18,7 +18,8 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
                 RESULT_VARIABLE result
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
 set(GTEST_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include")
 set(GTEST_BOTH_LIBRARIES gtest_main gtest)
 
