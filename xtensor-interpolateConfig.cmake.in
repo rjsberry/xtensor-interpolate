@@ -1,0 +1,25 @@
+# xtensor-interpolate: https://github.com/rjsberry/xtensor-interpolate
+#
+# Copyright (C) 2018, Richard Berry <rjsberry@protonmail.com>
+#
+# Distributed under the terms of BSD 2-Clause "simplified" license. (See
+# accompanying file LICENSE, or copy at
+# https://github.com/rjsberry/xtensor-interpolate/blob/master/LICENSE)
+#
+
+# xtensor-interpolate cmake module
+# This module sets the following variables in your project::
+#
+#   xtensor_interpolate_FOUND - true if xtensor-interpolate found on the system
+#   xtensor_interpolate_INCLUDE_DIR - the directory containing xtensor-interpolate headers
+#   xtensor_interpolate_LIBRARY - the library containing hooks into FITPACK.
+#
+
+@PACKAGE_INIT@
+
+set(PN xtensor_interpolate)
+set_and_check(TEMP_XTENSOR_INTERPOLATE_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@")
+set(${PN}_INCLUDE_DIRS "${TEMP_XTENSOR_INTERPOLATE_INCLUDE_DIR}")
+unset(TEMP_XTENSOR_INTERPOLATE_INCLUDE_DIR)
+set(${PN}_LIBRARY "xfitpack")
+check_required_components(${PN})
