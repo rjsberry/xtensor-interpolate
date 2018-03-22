@@ -43,6 +43,13 @@ namespace interpolate
 ///          coefficients, `c`, and the degree of the spline, `k`. It is not
 ///          recommended to manually adjust any of these values.
 ///
+/// @throws std::runtime_error
+///     Thrown if ``FITPACK`` encounters any errors.
+///
+/// @todo Address spline classification based on ``ier`` return.
+///
+/// @todo Catch and solve ``nest`` size error.
+///
 template <class E1, class E2>
 auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
 {
@@ -75,6 +82,24 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
                &xb, &xe, &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk,
                &iwrk[0], &ier);
 
+    switch (ier)
+    {
+      case -2:
+      case -1:
+      case 0:
+        break;  // Normal return.
+      case 1:
+        throw std::runtime_error("recalculation of nest is required");
+      case 2:
+        throw std::runtime_error("theoritcally impossible result");
+      case 3:
+        throw std::runtime_error("reached maximum iterations");
+      case 10:
+        throw std::runtime_error("invalid input data");
+      default:
+        throw std::runtime_error("an unknown error occurred");
+    }
+
     xtensor<double, 1> _t = view(t, range(0, n));
     xtensor<double, 1> _c = view(c, range(0, n));
 
@@ -103,6 +128,9 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
 /// @returns An array of interpolated values corresponding to the input
 ///          parameter `x`.
 ///
+/// @throws std::runtime_error
+///     Thrown if ``FITPACK`` encounters any errors.
+///
 template <class E, class... Args>
 auto splev(const xexpression<E>& x,
            const std::tuple<Args...>& tck,
@@ -117,6 +145,18 @@ auto splev(const xexpression<E>& x,
 
     _fc_splev(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
               &x.derived_cast()[0], &y[0], &m, &ext, &ier);
+
+    switch (ier)
+    {
+      case 0:
+        break;  // Normal return
+      case 1:
+        throw std::runtime_error("evaluation outside bounds of the spline");
+      case 10:
+        throw std::runtime_error("invalid input data");
+      default:
+        throw std::runtime_error("an unknown error occurred");
+    }
 
     return y;
 }
@@ -155,6 +195,9 @@ auto splint(double a, double b, const std::tuple<Args...>& tck)
 /// @returns An `xarray` of all derivatives of the spline up to order `k` for
 ///          each point in `x`.
 ///
+/// @throws std::runtime_error
+///     Thrown if ``FITPACK`` encounters any errors.
+///
 template <class E, class... Args>
 auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 {
@@ -169,6 +212,16 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
         auto ier = 0;
         _fc_spalde(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &k1,
                    &x.derived_cast()[i], &d[i * k1], &ier);
+                   
+        switch (ier)
+        {
+        case 0:
+            break;  // Normal return
+        case 10:
+            throw std::runtime_error("invalid input data");
+        default:
+            throw std::runtime_error("an unknown error occurred");
+        }
     }
     d.reshape({ m, static_cast<std::size_t>(k1) });
 
@@ -194,8 +247,7 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 ///     Thrown if `0 <= n <= k` does not hold, where `k` is the order of the
 ///     spline.
 /// @throws std::runtime_error
-///     Thrown if ``FITPACK`` encounters any errors based on the restrictions of
-///     the function.
+///     Thrown if ``FITPACK`` encounters any errors.
 ///
 /// @todo Link to ``splantider`` when `n < 0`.
 ///
@@ -227,7 +279,7 @@ auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
     switch (ier)
     {
       case 0:
-        break;
+        break;  // Normal return
       case 1:
         throw std::runtime_error("evaluation outside bounds of the spline");
       case 10:
