@@ -41,7 +41,7 @@ namespace interpolate
 ///
 /// @returns A tuple containing the vector of knots, `t`, the B-spline
 ///          coefficients, `c`, and the degree of the spline, `k`. It is not
-//           recommended to manually adjust any of these values.
+///          recommended to manually adjust any of these values.
 ///
 template <class E1, class E2>
 auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
@@ -173,6 +173,70 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
     d.reshape({ m, static_cast<std::size_t>(k1) });
 
     return d;
+}
+
+/// Compute the spline representation of the derivative of a given spline.
+///
+/// @param [in] x
+///     An array of points at which to evaluate the derivative.
+/// @param [in] tck
+///     A tuple containing the knots, B-spline coefficients, and degree of
+///     the spline.
+/// @param [in] nu
+///     Order of derivative to evaluate.
+///
+/// @returns A tuple containing the vector of knots, `t`, the B-spline
+///          coefficients, `c`, and the degree of the spline, `k - nu` for the
+///          evaluated derivative. It is not recommended to manually adjust any 
+///          of these values.
+///
+/// @throws std::invalid_argument
+///     Thrown if `0 <= n <= k` does not hold, where `k` is the order of the
+///     spline.
+/// @throws std::runtime_error
+///     Thrown if ``FITPACK`` encounters any errors based on the restrictions of
+///     the function.
+///
+/// @todo Link to ``splantider`` when `n < 0`.
+///
+/// @todo Parametrize ``ext`` to allow users to control FITPACK behaviour.
+///
+template <class E, class... Args>
+auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
+{
+    if (nu > std::get<2>(tck))
+    {
+        throw std::invalid_argument("order of derivative must be <= k");
+    }
+    if (nu < 0)
+    {
+        throw std::invalid_argument("not implemented");
+    }
+
+    auto n = static_cast<int>(std::get<0>(tck).shape()[0]);
+    auto m = static_cast<int>(x.derived_cast().shape()[0]);
+
+    xtensor<double, 1> y = zeros<double>({ x.derived_cast().shape()[0] });
+    xtensor<double, 1> wrk = zeros<double>({ n });
+    auto ext = 0;
+    auto ier = 0;
+
+    _fc_splder(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
+               &nu, &x.derived_cast()[0], &y[0], &m, &ext, &wrk[0], &ier);
+
+    switch (ier)
+    {
+      case 0:
+        break;
+      case 1:
+        throw std::runtime_error("evaluation outside bounds of the spline");
+      case 10:
+        throw std::runtime_error("invalid input data");
+      default:
+        throw std::runtime_error("an unknown error occurred");
+    }
+
+    return splrep(x, y, std::get<2>(tck) - nu);
 }
 
 }  // namespace interpolate

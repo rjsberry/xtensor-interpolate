@@ -70,6 +70,7 @@ TEST(smoke_test, splrep_splint)
 
 TEST(smoke_test, splrep_spalde)
 {
+    // Linear
     xtensor<double, 1> x = linspace<double>(0, ARR_LEN/10, ARR_LEN);
     xtensor<double, 1> y = x;
 
@@ -84,6 +85,22 @@ TEST(smoke_test, splrep_spalde)
 
         EXPECT_TRUE(allclose(expected, flatten(view(dy, range(i, i+1), all()))));
     }
+}
+
+TEST(smoke_test, splrep_splder_splev)
+{
+    // Linear
+    xtensor<double, 1> x = arange<double>(ARR_LEN);
+    xtensor<double, 1> y = x;
+
+    auto tck = interpolate::splrep(x, y);
+    auto dtck = interpolate::splder(x, tck);
+
+    auto dy = interpolate::splev(x, dtck);
+
+    xtensor<double, 1> expected = ones<double>({ ARR_LEN });
+
+    EXPECT_TRUE(allclose(expected, dy, pow10(-5)));
 }
 
 }  // namespace xt

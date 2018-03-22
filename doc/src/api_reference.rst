@@ -27,6 +27,9 @@ Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 .. doxygenfunction:: xt::interpolate::spalde
     :project: xtensor-interpolate
 
+.. doxygenfunction:: xt::interpolate::splder
+    :project: xtensor-interpolate
+
 Object-Oriented Interface
 -------------------------
 

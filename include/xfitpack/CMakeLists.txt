@@ -112,6 +112,7 @@ set(FC_SYMBOLS
     curfit
     fpcurf
     spalde
+    splder
     splev
     splint
 )
