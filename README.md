@@ -27,6 +27,32 @@ The `cmake` step can be installed with a number of flags:
 - `-DBUILD_TESTS=ON` to build the unit tests. Target them with `make xtest`.
 - `-DCMAKE_INSTALL_PREFIX=...` to change the CMake installation prefix.
 
+## Usage
+
+### Interpolation using the functional interface
+
+```cpp
+#include <cmath>
+#include "xtensor/xtensor.hpp"
+#include "xtensor-interpolate/xinterpolate.hpp"
+
+xt::xtensor<double, 1> x =
+    { -3.141, -2.443, -1.745, -1.047, -0.349, 0.349,  1.047,  1.745,  2.443,  3.141 };
+
+xt::xtensor<double, 1> y =
+    { 0., -0.643, -0.985, -0.866, -0.342,  0.342,  0.866,  0.985, 0.643,  0. };
+
+xt::xtensor<double, 1> xs = xt::linspace<double>(-M_PI, M_PI, 100);
+
+auto tck = xt::interpolate::splrep(x, y);
+
+auto ys = xt::interpolate::splev(xs, tck);
+```
+
+Plotted, this data looks like:
+
+![](assets/usage.png?raw=true)
+
 ## Development
 
 `xtensor-interpolate` is under heavy development as is **not** currently considered usable.
