@@ -119,8 +119,8 @@ set(FC_SYMBOLS
 
 include(FortranCInterface)
 FortranCInterface_HEADER(${XTENSOR_FITPACK_INTERFACE_INCLUDE_DIR}/xfcmangle.h
-    MACRO_NAMESPACE "FC_"
-    SYMBOL_NAMESPACE "_fc_"
+    MACRO_NAMESPACE "FP_"
+    SYMBOL_NAMESPACE "fp_"
     SYMBOLS ${FC_SYMBOLS}
 )
 

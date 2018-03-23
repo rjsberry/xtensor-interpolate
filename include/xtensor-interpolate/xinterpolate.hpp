@@ -78,9 +78,9 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
     auto n = 0;
     auto ier = 0;
 
-    _fc_curfit(&iopt, &m, &x.derived_cast()[0], &y.derived_cast()[0], &w[0],
-               &xb, &xe, &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk,
-               &iwrk[0], &ier);
+    fp_curfit(&iopt, &m, &x.derived_cast()[0], &y.derived_cast()[0], &w[0], &xb,
+              &xe, &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk,
+              &iwrk[0], &ier);
 
     switch (ier)
     {
@@ -143,8 +143,8 @@ auto splev(const xexpression<E>& x,
     xtensor<double, 1> y = zeros<double>({ static_cast<std::size_t>(m) });
     auto ier = 0;
 
-    _fc_splev(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
-              &x.derived_cast()[0], &y[0], &m, &ext, &ier);
+    fp_splev(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
+             &x.derived_cast()[0], &y[0], &m, &ext, &ier);
 
     switch (ier)
     {
@@ -171,7 +171,7 @@ auto splev(const xexpression<E>& x,
 ///
 /// @returns The resultant integral.
 ///
-/// @note This routine assums the spline is **0** outside of its data points.
+/// @note This routine assumes the spline is **0** outside of its data points.
 ///
 template <class... Args>
 auto splint(double a, double b, const std::tuple<Args...>& tck)
@@ -180,8 +180,8 @@ auto splint(double a, double b, const std::tuple<Args...>& tck)
 
     xtensor<double, 1> wrk = zeros<double>({ n });
 
-    return _fc_splint(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0],
-                      &std::get<2>(tck), &a, &b, &wrk[0]);
+    return fp_splint(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0],
+                     &std::get<2>(tck), &a, &b, &wrk[0]);
 }
 
 /// Evaluate all derivatives of a B-spline.
@@ -210,16 +210,17 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
     for (std::size_t i = 0; i < m; ++i)
     {
         auto ier = 0;
-        _fc_spalde(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &k1,
-                   &x.derived_cast()[i], &d[i * k1], &ier);
+
+        fp_spalde(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &k1,
+                  &x.derived_cast()[i], &d[i * k1], &ier);
                    
         switch (ier)
         {
-        case 0:
+          case 0:
             break;  // Normal return
-        case 10:
+          case 10:
             throw std::runtime_error("invalid input data");
-        default:
+          default:
             throw std::runtime_error("an unknown error occurred");
         }
     }
@@ -273,8 +274,8 @@ auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
     auto ext = 0;
     auto ier = 0;
 
-    _fc_splder(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
-               &nu, &x.derived_cast()[0], &y[0], &m, &ext, &wrk[0], &ier);
+    fp_splder(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
+              &nu, &x.derived_cast()[0], &y[0], &m, &ext, &wrk[0], &ier);
 
     switch (ier)
     {

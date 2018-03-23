@@ -45,10 +45,9 @@ auto fpcurf0(const xtensor<double, 1>& x, const xtensor<double, 1>& y,
 
     auto ier = 0;
 
-    _fc_fpcurf(&iopt, &x[0], &y[0], &w[0], &m, &xb, &xe, &k, &s, &nest,
-               &tol, &maxit, &k1, &k2, &n, &t[0], &c[0], &fp, &fpint[0],
-               &wrk[0], &wrkn[0], &wrknk2[0], &wrkn2k2[0], &wrkn3k2[0],
-               &nrdata[0], &ier);
+    fp_fpcurf(&iopt, &x[0], &y[0], &w[0], &m, &xb, &xe, &k, &s, &nest, &tol,
+              &maxit, &k1, &k2, &n, &t[0], &c[0], &fp, &fpint[0], &wrk[0],
+              &wrkn[0], &wrknk2[0], &wrkn2k2[0], &wrkn3k2[0], &nrdata[0], &ier);
 
     return ier;
 }

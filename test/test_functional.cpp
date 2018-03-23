@@ -95,12 +95,16 @@ TEST(smoke_test, splrep_splder_splev)
 
     auto tck = interpolate::splrep(x, y);
     auto dtck = interpolate::splder(x, tck);
+    auto ddtck = interpolate::splder(x, dtck);
 
     auto dy = interpolate::splev(x, dtck);
+    auto ddy = interpolate::splev(x, ddtck);
 
-    xtensor<double, 1> expected = ones<double>({ ARR_LEN });
+    xtensor<double, 1> d_expected = ones<double>({ ARR_LEN });
+    xtensor<double, 1> dd_expected = zeros<double>({ ARR_LEN });
 
-    EXPECT_TRUE(allclose(expected, dy, pow10(-5)));
+    EXPECT_TRUE(allclose(d_expected, dy, pow10(-5)));
+    EXPECT_TRUE(allclose(dd_expected, ddy, pow10(-5)));
 }
 
 }  // namespace xt
