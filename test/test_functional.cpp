@@ -12,6 +12,7 @@
 #define XTENSOR_ENABLE_ASSERT
 #include "xtensor/xexception.hpp"
 #include "xtensor/xmath.hpp"
+#include "xtensor/xrandom.hpp"
 #include "xtensor/xstrided_view.hpp"
 #include "xtensor/xtensor.hpp"
 
@@ -20,12 +21,9 @@
 namespace xt
 {
 
-namespace
-{
+namespace { const std::size_t ARR_LEN = 100; }
 
-const std::size_t ARR_LEN = 100;
-
-}  // namespace
+// Smoke tests
 
 TEST(smoke_test, splrep_splev)
 {
@@ -105,6 +103,54 @@ TEST(smoke_test, splrep_splder_splev)
 
     EXPECT_TRUE(allclose(d_expected, dy, pow10(-5)));
     EXPECT_TRUE(allclose(dd_expected, ddy, pow10(-5)));
+}
+
+// Unit tests
+
+TEST(splder, invalid_nu_throws)
+{
+    xtensor<double, 1> x = random::randn<double>({ ARR_LEN });
+
+    xtensor<double, 1> t = random::randn<double>({ ARR_LEN });
+    xtensor<double, 1> c = random::randn<double>({ ARR_LEN });
+    auto k = random::randint({ 1 }, 1, 6)[0];
+    
+    auto nu = k + 1;  // Invalid derivative.
+
+    try
+    {
+        auto dtck = interpolate::splder(x, std::make_tuple(t, c, k), nu);
+        FAIL() << "Expected `std::invalid_argument`";
+    }
+    catch (const std::invalid_argument& e)
+    {
+        EXPECT_EQ(std::string(e.what()), "order of derivative must be <= k");
+    }
+    catch (...)
+    {
+        FAIL() << "Expected `std::invalid_argument`";
+    }
+
+    
+    for (const auto& nu : { k, k - 1 })  // Valid derivatives.
+    {
+        try
+        {
+            auto dtck = interpolate::splder(x, std::make_tuple(t, c, k), nu);
+        }
+        catch (const std::invalid_argument&)
+        {
+            FAIL() << "Did not expected `std::invalid_argument`";
+        }
+        catch (const std::runtime_error&)
+        {
+            ;  // Don't care if randomly generated input error is invalid.
+        }
+        catch (...)
+        {
+            FAIL() << "An unknown error occurred";
+        }
+    }
 }
 
 }  // namespace xt
