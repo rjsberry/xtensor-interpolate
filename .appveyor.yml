@@ -22,9 +22,8 @@ init:
   # Remove "sh.exe" from PATH for CMake "MinGW Makefiles"
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-
-before_build:
-  - cmd: mklink make.exe %MINGW%\mingw32-make.exe
+  # Create a "make" alias to mingw32-make
+  - cmd: mklink %MINGW%\make.exe %MINGW%\mingw32-make.exe
 
 install:
   - conda config --set always_yes yes --set changeps1 no
