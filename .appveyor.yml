@@ -23,9 +23,10 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
+  - conda install gcc -c anaconda
   - conda install gtest cmake -c conda-forge
   - conda install xtl xtensor -c conda-forge
-  - cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON .
+  - cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON -DCMAKE_Fortran_COMPILER=gfortran .
   - nmake test_xtensor_interpolate
   - cd test
   
