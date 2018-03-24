@@ -19,11 +19,8 @@ init:
   - ps: if($env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' C:\Miniconda.exe; echo "Done"}
   - cmd: C:\Miniconda.exe /S /D=C:\xtensor-conda
   - "set PATH=%MINGW%;%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%MINICONDA%\\Library\\mingw-w64\\bin;%PATH%"
-  # Remove "sh.exe" from PATH for CMake "MinGW Makefiles"
-  - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
-  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-  # Create a "make" alias to mingw32-make
-  - cmd: mklink %MINGW%\make.exe %MINGW%\mingw32-make.exe
+  # Tell CMake about the GFortran compiler
+  - "set FC=%MINGW%\\gfortran"
 
 install:
   - conda config --set always_yes yes --set changeps1 no
@@ -31,8 +28,8 @@ install:
   - conda info -a
   - conda install gtest cmake -c conda-forge
   - conda install xtl xtensor -c conda-forge
-  - cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON -DCMAKE_SH="CMAKE_SH-NOTFOUND" .
-  - make test_xtensor_interpolate
+  - cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON .
+  - nmake test_xtensor_interpolate
   - cd test
   
 build_script:
