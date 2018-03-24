@@ -10,7 +10,6 @@ image:
 
 environment:
   MINICONDA: C:\xtensor-conda
-  MINGW: C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1
 
 init:
   - "ECHO %MINICONDA%"
@@ -26,8 +25,8 @@ install:
   - conda info -a
   - conda install gtest cmake -c conda-forge
   - conda install xtl xtensor -c conda-forge
-  - cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON -DCMAKE_Fortran_COMPILER=%MINGW%\gfortran  .
-  - nmake test_xtensor_interpolate
+  - cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON .
+  - make test_xtensor_interpolate
   - cd test
   
 build_script:
