@@ -1,6 +1,7 @@
 # xtensor-interpolate
 
 [![Travis](https://travis-ci.org/rjsberry/xtensor-interpolate.svg?branch=master)](https://travis-ci.org/rjsberry/xtensor-interpolate)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/hp9uya98ca0oavlk?svg=true)](https://ci.appveyor.com/project/rjsberry/xtensor-interpolate)
 [![Read the Docs](https://readthedocs.org/projects/xtensor-interpolate/badge/?version=latest)](http://xtensor-interpolate.readthedocs.io/en/latest/?badge=latest)
 
 `xtensor-interpolate` is an ***unofficial*** extension to the `xtensor` library offering spline interpolation via
