@@ -45,7 +45,7 @@ TEST(univariate_spline, smoke_test)
         xtensor<double, 1> x_interp = linspace<double>(-M_PI, M_PI, test_arr_len);
         auto y_interp = s(x_interp);
 
-        EXPECT_TRUE(allclose(y_interp, f(x_interp), 5*pow10(-3)));
+        EXPECT_TRUE(allclose(y_interp, f(x_interp), 0.005));
     }
 }
 
@@ -195,7 +195,7 @@ TEST(univariate_spline, evaluate_definite_integral)
 
         EXPECT_TRUE(allclose(s.integral(test.x[0], test.x[test.x.shape()[0] - 1]),
                              test.definite_integral,
-                             pow10(-5)));
+                             0.00001));
     }
 }
 
