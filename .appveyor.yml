@@ -21,6 +21,7 @@ init:
   - "set PATH=%MINGW%;%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%MINICONDA%\\Library\\mingw-w64\\bin;%PATH%"
   # Remove "sh.exe" from PATH for CMake "MinGW Makefiles"
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
 
 before_build:
   - cmd: mklink make.exe %MINGW%\mingw32-make.exe
