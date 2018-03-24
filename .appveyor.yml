@@ -25,7 +25,7 @@ install:
   - conda info -a
   - conda install gtest cmake -c conda-forge
   - conda install xtl xtensor -c conda-forge
-  - cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON .
+  - cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON -DCMAKE_SH="CMAKE_SH-NOTFOUND" .
   - make test_xtensor_interpolate
   - cd test
   
