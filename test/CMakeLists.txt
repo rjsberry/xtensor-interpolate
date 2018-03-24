@@ -30,7 +30,8 @@ if(DOWNLOAD_GTEST OR GTEST_SRC_DIR)
     endif()
 
     add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-                     ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+                     ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                     EXCLUDE_FROM_ALL)
 
     set(GTEST_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include")
     set(GTEST_BOTH_LIBRARIES gtest_main gtest)
@@ -38,7 +39,14 @@ else()
     find_package(GTest REQUIRED)
 endif()
 
-find_package(Threads)
+if(WIN32 AND (MINGW OR MSYS OR MSVC))
+    set(GTEST_SINGLE_THREAD TRUE)
+endif()
+
+if(NOT GTEST_SINGLE_THREAD)
+    find_package(Threads)
+endif()
+
 find_package(xtensor REQUIRED)
 
 include_directories(${XTENSOR_INTERPOLATE_INCLUDE_DIR})
@@ -63,10 +71,17 @@ if(DOWNLOAD_GTEST OR GTEST_SRC_DIR)
     add_dependencies(${XTENSOR_INTERPOLATE_TARGET} gtest_main)
 endif()
 
-target_link_libraries(${XTENSOR_INTERPOLATE_TARGET}
-    ${FITPACK_LIBRARY}
-    ${GTEST_BOTH_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
-)
+if(GTEST_SINGLE_THREAD)
+    target_link_libraries(${XTENSOR_INTERPOLATE_TARGET}
+        ${FITPACK_LIBRARY}
+        ${GTEST_BOTH_LIBRARIES}
+    )
+else()
+    target_link_libraries(${XTENSOR_INTERPOLATE_TARGET}
+        ${FITPACK_LIBRARY}
+        ${GTEST_BOTH_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+    )
+endif()
 
 add_custom_target(xtest COMMAND test_xtensor_interpolate DEPENDS ${XTENSOR_INTERPOLATE_TARGET})

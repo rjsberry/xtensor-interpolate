@@ -9,7 +9,7 @@ image:
   - Visual Studio 2015
 
 environment:
-  MINGW: C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin
+  MINGW: C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64
   MINICONDA: C:\xtensor-conda
 
 init:
@@ -18,19 +18,25 @@ init:
   - ps: if($env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe' C:\Miniconda.exe; echo "Done"}
   - ps: if($env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' C:\Miniconda.exe; echo "Done"}
   - cmd: C:\Miniconda.exe /S /D=C:\xtensor-conda
-  - "set PATH=%MINGW%;%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%MINICONDA%\\Library\\mingw-w64\\bin;%PATH%"
-  # Tell CMake about the GFortran compiler
-  - "set FC=%MINGW%\\gfortran"
+  - "set PATH=%MINGW%\\bin;%PATH%"
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%MINICONDA%\\Library\\mingw-w64\\bin;%MINICONDA%\\Library\\lib;%PATH%"
+  # Remove "sh.exe" from PATH for CMake "MinGW Makefiles"
+  - "set PATH=%PATH:C:\\Program Files (x86)\\Git\\bin;=%"
+  - "set PATH=%PATH:C:\\Program Files\\Git\\usr\\bin;=%"
+  # Create a "make" alias to mingw32-make
+  - cmd: mklink %MINGW%\bin\make.exe %MINGW%\bin\mingw32-make.exe
 
 install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda install gtest cmake -c conda-forge
+  - conda install cmake -c conda-forge
   - conda install xtl xtensor -c conda-forge
-  - cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON .
-  - nmake test_xtensor_interpolate
+  - cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=%MINICONDA%\Library -DBUILD_TESTS=ON -DDOWNLOAD_GTEST=ON -Dgtest_disable_pthreads=ON -DCMAKE_SH="CMAKE_SH-NOTFOUND" .
+  - make test_xtensor_interpolate
+  # Install to make sure libxfitpack.dll can be found in PATH (else tests exit with code -1073741515)
+  - make install
   - cd test
   
 build_script:
-  - .\test_xtensor_interpolate
+  - .\test_xtensor_interpolate.exe
