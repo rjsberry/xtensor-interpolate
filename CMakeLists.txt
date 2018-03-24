@@ -35,6 +35,11 @@ add_subdirectory(${XTENSOR_FITPACK_INTERFACE_INCLUDE_DIR})
 # Tests
 
 OPTION(BUILD_TESTS "xtensor-interpolate test suite" OFF)
+OPTION(DOWNLOAD_GTEST "build gtest from downloaded sources" OFF)
+
+if(DOWNLOAD_GTEST OR GTEST_SRC_DIR)
+    set(BUILD_TESTS ON)
+endif()
 
 if(BUILD_TESTS)
     enable_testing(true)
