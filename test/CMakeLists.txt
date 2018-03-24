@@ -53,15 +53,20 @@ set(XTENSOR_INTERPOLATE_TESTS
 
 set(XTENSOR_INTERPOLATE_TARGET test_xtensor_interpolate)
 
-add_executable(${XTENSOR_INTERPOLATE_TARGET} ${XTENSOR_INTERPOLATE_TESTS} ${XTENSOR_INTERPOLATE_HEADER})
+add_executable(${XTENSOR_INTERPOLATE_TARGET}
+    ${XTENSOR_INTERPOLATE_TESTS}
+    ${XTENSOR_INTERPOLATE_HEADER}
+    ${XTENSOR_HEADERS}
+)
+
 if(DOWNLOAD_GTEST OR GTEST_SRC_DIR)
     add_dependencies(${XTENSOR_INTERPOLATE_TARGET} gtest_main)
 endif()
 
 target_link_libraries(${XTENSOR_INTERPOLATE_TARGET}
-    ${GTEST_BOTH_LIBRARIES}
     ${FITPACK_LIBRARY}
+    ${GTEST_BOTH_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-add_custom_target(xtest COMMAND test_xtensor_interpolate)
+add_custom_target(xtest COMMAND test_xtensor_interpolate DEPENDS ${XTENSOR_INTERPOLATE_TARGET})
