@@ -23,7 +23,10 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 set(GTEST_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include")
 set(GTEST_BOTH_LIBRARIES gtest_main gtest)
 
-find_package(Threads)
+if(NOT WIN32)
+    find_package(Threads)
+endif()
+
 find_package(xtensor REQUIRED)
 
 include_directories(${XTENSOR_INTERPOLATE_INCLUDE_DIR})
