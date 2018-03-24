@@ -35,7 +35,7 @@ TEST(smoke_test, splrep_splev)
     xtensor<double, 1> xs = arange<double>(0, M_PI, 100);
     xtensor<double, 1> ys = interpolate::splev(xs, tck);
 
-    EXPECT_TRUE(allclose(ys, sin(xs), pow10(-5)));
+    EXPECT_TRUE(allclose(ys, sin(xs), 0.00001));
 }
 
 TEST(smoke_test, splrep_splint)
@@ -62,7 +62,7 @@ TEST(smoke_test, splrep_splint)
 
         EXPECT_TRUE(allclose(interpolate::splint(test.x[0], test.x[test.x.shape()[0] - 1], tck),
                              test.definite_integral,
-                             pow10(-5)));
+                             0.00001));
     }
 }
 
@@ -81,7 +81,9 @@ TEST(smoke_test, splrep_spalde)
     {
         xtensor<double, 1> expected = { dx[i], 1, 0, 0 };
 
-        EXPECT_TRUE(allclose(expected, flatten(view(dy, range(i, i+1), all()))));
+        EXPECT_TRUE(allclose(expected,
+                             flatten(view(dy, range(i, i+1), all())),
+                             0.00001));
     }
 }
 
@@ -101,8 +103,8 @@ TEST(smoke_test, splrep_splder_splev)
     xtensor<double, 1> d_expected = ones<double>({ ARR_LEN });
     xtensor<double, 1> dd_expected = zeros<double>({ ARR_LEN });
 
-    EXPECT_TRUE(allclose(d_expected, dy, pow10(-5)));
-    EXPECT_TRUE(allclose(dd_expected, ddy, pow10(-5)));
+    EXPECT_TRUE(allclose(d_expected, dy, 0.00001));
+    EXPECT_TRUE(allclose(dd_expected, ddy, 0.00001));
 }
 
 // Unit tests
