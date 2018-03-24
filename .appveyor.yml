@@ -19,6 +19,8 @@ init:
   - ps: if($env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' C:\Miniconda.exe; echo "Done"}
   - cmd: C:\Miniconda.exe /S /D=C:\xtensor-conda
   - "set PATH=%MINGW%;%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%MINICONDA%\\Library\\mingw-w64\\bin;%PATH%"
+  # Remove "sh.exe" from PATH for CMake "MinGW Makefiles"
+  - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
 
 before_build:
   - cmd: mklink make.exe %MINGW%\mingw32-make.exe
