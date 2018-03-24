@@ -14,7 +14,9 @@ The FITPACK library is used in [SciPy](https://github.com/scipy/scipy) to build 
 
 ## Installation
 
-On UNIX-like platforms (from the source root directory):
+### From Source
+
+Installation from source is streamlined with CMake.
 
 ```
 mkdir build
@@ -23,10 +25,22 @@ cmake ..
 make install
 ```
 
-The `cmake` step can be installed with a number of flags:
+The `cmake` step of the process can be customized with a number of flags.
 
-- `-DBUILD_TESTS=ON` to build the unit tests. Target them with `make xtest`.
-- `-DCMAKE_INSTALL_PREFIX=...` to change the CMake installation prefix.
+- `-DCMAKE_INSTALLATION_PREFIX=...` to change where you want
+  `xtensor-interpolate` to install to.
+
+- `-DBUILD_TESTS=ON` to build the unit test suite. This requires `googletest`.
+
+  - You can target the unit tests directly with `make xtest`, or just build the
+    executable with `make test_xtensor_interpolate`.
+
+- `-DDOWNLOAD_GTEST=ON` to download and compile `googletest` as part of the
+  build step. Note that `googletest` will not actually be installed to your
+  system directories, and is just statically linked into the test executable.
+
+  - Use `Dgtest_disable_pthreads=ON` to compile a single-threaded version of
+    `googletest`. This is **required** when using Windows and MinGW.
 
 ## Usage
 
