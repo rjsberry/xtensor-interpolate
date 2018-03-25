@@ -55,8 +55,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 set(XTENSOR_INTERPOLATE_TESTS
     main.cpp
-    test_functional.cpp
-    test_univariate_spline.cpp
+    test_xinterpolate.cpp
 )
 
 set(XTENSOR_INTERPOLATE_TARGET test_xtensor_interpolate)

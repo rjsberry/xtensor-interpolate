@@ -20,16 +20,10 @@
 Installation
 ============
 
-As well as the xtensor headers, all installation methods place the ``cmake``
-project configuration file in the appropriate location so that other projects
-can use cmake's ``find_package`` to locate ``xtensor-interpolate``.
-
 .. image:: cmake.svg
 
 CMake
 -----
-
-On Unix platforms, from the source directory:
 
 .. code::
 
@@ -37,3 +31,8 @@ On Unix platforms, from the source directory:
     cd build
     cmake ..
     make install
+
+This will install the ``xtensor-interpolate`` headers, compile and install the
+FITPACK interface libraries (``.so`` on Linux, ``.dll`` on Windows), and place
+the CMake project configuration file in the appropriate location so that other
+projects can use CMake's ``find_package(xtensor-interpolate)``.

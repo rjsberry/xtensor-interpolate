@@ -10,9 +10,6 @@ The ``xtensor-interpolate`` API is closely modelled after Python's ``scipy.inter
 API Reference
 =============
 
-Functional Interface
---------------------
-
 Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 
 .. doxygenfunction:: xt::interpolate::splrep
@@ -29,12 +26,3 @@ Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 
 .. doxygenfunction:: xt::interpolate::splder
     :project: xtensor-interpolate
-
-Object-Oriented Interface
--------------------------
-
-Defined in ``xtensor-interpolate/xspline.hpp``.
-
-.. doxygenclass:: xt::interpolate::UnivariateSpline
-    :project: xtensor-interpolate
-    :members:
