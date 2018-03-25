@@ -122,15 +122,16 @@ TEST(splder, invalid_nu_throws)
     try
     {
         auto dtck = interpolate::splder(x, std::make_tuple(t, c, k), nu);
-        FAIL() << "Expected `std::invalid_argument`";
+        FAIL() << "Expected `std::runtime_error`";
     }
-    catch (const std::invalid_argument& e)
+    catch (const std::runtime_error& e)
     {
-        EXPECT_EQ(std::string(e.what()), "order of derivative must be <= k");
+        EXPECT_NE(std::string(e.what()).find("order of derivative must be"),
+                  std::string::npos);
     }
     catch (...)
     {
-        FAIL() << "Expected `std::invalid_argument`";
+        FAIL() << "Expected `std::runtime_error`";
     }
 
     
@@ -140,13 +141,10 @@ TEST(splder, invalid_nu_throws)
         {
             auto dtck = interpolate::splder(x, std::make_tuple(t, c, k), nu);
         }
-        catch (const std::invalid_argument&)
+        catch (const std::runtime_error& e)
         {
-            FAIL() << "Did not expected `std::invalid_argument`";
-        }
-        catch (const std::runtime_error&)
-        {
-            ;  // Don't care if randomly generated input error is invalid.
+            EXPECT_EQ(std::string(e.what()).find("order of derivative must be"),
+                      std::string::npos);
         }
         catch (...)
         {

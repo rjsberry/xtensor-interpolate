@@ -10,12 +10,10 @@
 /// https://github.com/rjsberry/xtensor-interpolate/blob/master/LICENSE)
 ///
 
-#include <map>
-#include <string>
 #include <tuple>
-#include <vector>
 
 #include "xtensor/xarray.hpp"
+#include "xtensor/xexception.hpp"
 #include "xtensor/xexpression.hpp"
 #include "xtensor/xlayout.hpp"
 #include "xtensor/xtensor.hpp"
@@ -37,12 +35,14 @@ namespace interpolate
 ///     The data points defining a curve y = f(x).
 /// @param [in] k
 ///     The order of the spline fit. It is recommended to use cubic splines.
-///     1 <= k <= 5
 ///
 /// @returns A tuple containing the vector of knots, `t`, the B-spline
 ///          coefficients, `c`, and the degree of the spline, `k`. It is not
 ///          recommended to manually adjust any of these values.
 ///
+/// @throws std::runtime_error
+///     Thrown if input data is not 1-D or not the same length, or if ``k`` does
+///     not satisfy ``0 <= k <= 5``.
 /// @throws std::runtime_error
 ///     Thrown if ``FITPACK`` encounters any errors.
 ///
@@ -50,26 +50,40 @@ namespace interpolate
 ///
 /// @todo Catch and solve ``nest`` size error.
 ///
-template <class E1, class E2>
-auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
+template <class E1, class E2, class E3>
+auto splrep(const xexpression<E1>& x,
+            const xexpression<E2>& y,
+            const xexpression<E3>& w,
+            double xb,
+            double xe,
+            int k,
+            double s)
 {
-    auto m = static_cast<int>(x.derived_cast().shape()[0]);
+    const auto& _x = x.derived_cast();
+    const auto& _y = y.derived_cast();
+    const auto& _w = w.derived_cast();
 
-    auto s = 0.0;
-    auto xb = x.derived_cast()[0];
-    auto xe = x.derived_cast()[m - 1];
+    XTENSOR_ASSERT_MSG(
+        _x.dimension() == 1 && _y.dimension() == 1 && _w.dimension() == 1,
+        "input data must be 1-D"
+    );
+    XTENSOR_ASSERT_MSG(
+        _x.shape()[0] == _y.shape()[0] && _x.shape()[0] == _w.shape()[0],
+        "input data must be the same length"
+    );
+    XTENSOR_ASSERT_MSG(
+        0 <= k && k <= 5,
+        "k must satisfy 0 <= k <= 5"
+    );
+
+    auto m = static_cast<int>(_x.shape()[0]);
+
     auto iopt = 0;
-
-    // Weights used in computing the weighted least-squares spline fit.
-    xtensor<double, 1> w = ones<double>({ static_cast<std::size_t>(m) });
-
     auto nest = std::max(m + k + 1, 2*k + 3);
-    // Knots.
+
     xtensor<double, 1> t = zeros<double>({ static_cast<std::size_t>(nest) });
-    // Coefficients.
     xtensor<double, 1> c = zeros<double>({ static_cast<std::size_t>(nest) });
 
-    // Working memory.
     auto lwrk = m*(k + 1) + nest*(7 + 3*k);
     xtensor<double, 1> wrk = zeros<double>({ static_cast<std::size_t>(lwrk) });
     xtensor<int, 1> iwrk = zeros<int>({ static_cast<std::size_t>(lwrk) });
@@ -78,9 +92,8 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
     auto n = 0;
     auto ier = 0;
 
-    fp_curfit(&iopt, &m, &x.derived_cast()[0], &y.derived_cast()[0], &w[0], &xb,
-              &xe, &k, &s, &nest, &n, &t[0], &c[0], &fp, &wrk[0], &lwrk,
-              &iwrk[0], &ier);
+    fp_curfit(&iopt, &m, &_x[0], &_y[0], &_w[0], &xb, &xe, &k, &s, &nest, &n,
+              &t[0], &c[0], &fp, &wrk[0], &lwrk, &iwrk[0], &ier);
 
     switch (ier)
     {
@@ -104,6 +117,21 @@ auto splrep(const xexpression<E1>& x, const xexpression<E2>& y, int k = 3)
     xtensor<double, 1> _c = view(c, range(0, n));
 
     return std::make_tuple(_t, _c, k);
+}
+
+/// @overload
+///
+template <class E1, class E2>
+auto splrep(const xexpression<E1>& x,
+            const xexpression<E2>& y,
+            int k = 3,
+            double s = 0.0)
+{
+    const auto& _x = x.derived_cast();
+    const auto& _y = y.derived_cast();
+    xtensor<double, 1> w = ones<double>({ _x.shape()[0] });
+
+    return splrep(_x, _y, w, _x[0], _x[_x.shape()[0] - 1], k, s);
 }
 
 /// Evaluate a B-Spline or its derivatives.
@@ -207,6 +235,7 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
     auto k1 = std::get<2>(tck) + 1;
 
     xarray<double> d = zeros<double>({ static_cast<std::size_t>(k1) * m });
+
     for (std::size_t i = 0; i < m; ++i)
     {
         auto ier = 0;
@@ -224,6 +253,7 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
             throw std::runtime_error("an unknown error occurred");
         }
     }
+
     d.reshape({ m, static_cast<std::size_t>(k1) });
 
     return d;
@@ -244,7 +274,7 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 ///          evaluated derivative. It is not recommended to manually adjust any 
 ///          of these values.
 ///
-/// @throws std::invalid_argument
+/// @throws std::runtime_error
 ///     Thrown if `0 <= n <= k` does not hold, where `k` is the order of the
 ///     spline.
 /// @throws std::runtime_error
@@ -257,14 +287,10 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 template <class E, class... Args>
 auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
 {
-    if (nu > std::get<2>(tck))
-    {
-        throw std::invalid_argument("order of derivative must be <= k");
-    }
-    if (nu < 0)
-    {
-        throw std::invalid_argument("not implemented");
-    }
+    XTENSOR_ASSERT_MSG(
+        0 <= nu && nu <= std::get<2>(tck),
+        "order of derivative must be <= k and >= 0"
+    );
 
     auto n = static_cast<int>(std::get<0>(tck).shape()[0]);
     auto m = static_cast<int>(x.derived_cast().shape()[0]);

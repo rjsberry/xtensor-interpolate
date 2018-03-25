@@ -12,7 +12,10 @@ API Reference
 
 Defined in ``xtensor-interpolate/xinterpolate.hpp``.
 
-.. doxygenfunction:: xt::interpolate::splrep
+.. doxygenfunction:: xt::interpolate::splrep(const xexpression<E1>&, const xexpression<E2>&, const xexpression<E3>&, double, double, int, double)
+    :project: xtensor-interpolate
+
+.. doxygenfunction:: xt::interpolate::splrep(const xexpression<E1>&, const xexpression<E2>&, int)
     :project: xtensor-interpolate
 
 .. doxygenfunction:: xt::interpolate::splev
