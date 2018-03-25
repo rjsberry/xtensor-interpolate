@@ -212,6 +212,61 @@ auto splint(double a, double b, const std::tuple<Args...>& tck)
                      &std::get<2>(tck), &a, &b, &wrk[0]);
 }
 
+/// Find the roots of a cubic B-spline.
+///
+/// @param [in] tck
+///     A tuple containing the knots, B-spline coefficients, and degree of
+///     the spline.
+/// @param [in] mest
+///     An estimate of the number of roots.
+///
+/// @returns An array giving the roots of the spline.
+///
+/// @warning The degree of the spline must be 3.
+///
+/// @warning The number of knots must be greater than or equal to 8.
+///
+/// @throws std::runtime_error
+///     Thrown if the input data is invalid, or if ``FITPACK`` encounters
+///     any errors.
+///
+template <class... Args>
+auto sproot(const std::tuple<Args...>& tck, int mest = 10)
+{
+    XTENSOR_ASSERT_MSG(
+        std::get<0>(tck).shape()[0] >= 8, "the number of knots must be >= 8"
+    );
+    XTENSOR_ASSERT_MSG(
+        std::get<2>(tck) == 3, "the degree of the spline must be 3"
+    );
+
+    auto n = static_cast<int>(std::get<0>(tck).shape()[0]);
+
+    xtensor<double, 1> zero = zeros<double>({ static_cast<std::size_t>(mest) });
+    int m = 0;
+
+    int ier = 0;
+
+    fp_sproot(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &zero[0], &mest,
+              &m, &ier);
+
+    switch (ier)
+    {
+      case 0:
+        break;  // Normal return
+      case 1:
+        throw std::runtime_error("number of zeros exceeds mest");
+      case 10:
+        throw std::runtime_error("invalid input data");
+      default:
+        throw std::runtime_error("an unknown error occurred");
+    }
+
+    xtensor<double, 1> _zero = view(zero, range(0, m));
+
+    return _zero;
+}
+
 /// Evaluate all derivatives of a B-spline.
 ///
 /// @param [in] x

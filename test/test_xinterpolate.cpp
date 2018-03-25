@@ -21,7 +21,7 @@
 namespace xt
 {
 
-namespace { const std::size_t ARR_LEN = 100; }
+namespace { constexpr std::size_t ARR_LEN = 100; }
 
 // Smoke tests
 
@@ -64,6 +64,21 @@ TEST(smoke_test, splrep_splint)
                              test.definite_integral,
                              0.00001));
     }
+}
+
+TEST(smoke_test, splrep_sproot)
+{
+    double root = random::randn<double>({ 1 }, 0, 10)[0];
+
+    xtensor<double, 1> x = linspace<double>(-10, 10, ARR_LEN);
+    xtensor<double, 1> y = x*x - root*root;
+
+    auto tck = interpolate::splrep(x, y);
+
+    xtensor<double, 1> expected = { -root, root };
+    xtensor<double, 1> roots = interpolate::sproot(tck);
+
+    EXPECT_TRUE(allclose(roots, expected, 0.00001));
 }
 
 TEST(smoke_test, splrep_spalde)
@@ -150,6 +165,97 @@ TEST(splder, invalid_nu_throws)
         {
             FAIL() << "An unknown error occurred";
         }
+    }
+}
+
+TEST(sproot, invalid_tck_throws)
+{
+    xtensor<double, 1> t = random::randn<double>({ 7 });
+    xtensor<double, 1> c = random::randn<double>({ 7 });
+    auto k = 3;
+
+    try
+    {
+        auto roots = interpolate::sproot(std::make_tuple(t, c, k));
+        FAIL() << "Expected `std::runtime_error`";
+    }
+    catch (const std::runtime_error& e)
+    {
+        EXPECT_NE(std::string(e.what()).find("number of knots must be"),
+                  std::string::npos);
+    }
+    catch (...)
+    {
+        FAIL() << "Expected `std::runtime_error`";
+    }
+}
+
+TEST(sproot, invalid_k_throws)
+{
+    xtensor<double, 1> t = random::randn<double>({ 8 });
+    xtensor<double, 1> c = random::randn<double>({ 8 });
+
+    for (const auto& k : {1, 2, 4, 5})
+    {
+        try
+        {
+            auto roots = interpolate::sproot(std::make_tuple(t, c, k));
+            FAIL() << "Expected `std::runtime_error`";
+        }
+        catch (const std::runtime_error& e)
+        {
+            EXPECT_NE(std::string(e.what()).find("degree of the spline must be"),
+                      std::string::npos);
+        }
+        catch (...)
+        {
+            FAIL() << "Expected `std::runtime_error`";
+        }
+    }
+}
+
+TEST(sproot, non_monotonic_knots_throws)
+{
+    xtensor<double, 1> t = linspace<double>(1, 0, 8);
+    xtensor<double, 1> c = random::randn<double>({ 8 });
+    auto k = 3;
+
+    try
+    {
+        auto roots = interpolate::sproot(std::make_tuple(t, c, k));
+        FAIL() << "Expected `std::runtime_error`";
+    }
+    catch (const std::runtime_error& e)
+    {
+        EXPECT_NE(std::string(e.what()).find("invalid input data"),
+                  std::string::npos);
+    }
+    catch (...)
+    {
+        FAIL() << "Expected `std::runtime_error`";
+    }
+}
+
+TEST(sproot, mest_too_small_throws)
+{
+    xtensor<double, 1> t = linspace<double>(0, 1, ARR_LEN);
+    xtensor<double, 1> c = random::randn<double>({ ARR_LEN });
+    auto k = 3;
+    auto mest = 1;
+
+    try
+    {
+        auto roots = interpolate::sproot(std::make_tuple(t, c, k), mest);
+        FAIL() << "Expected `std::runtime_error`";
+    }
+    catch (const std::runtime_error& e)
+    {
+        EXPECT_NE(std::string(e.what()).find("number of zeros exceeds mest"),
+                  std::string::npos);
+    }
+    catch (...)
+    {
+        FAIL() << "Expected `std::runtime_error`";
     }
 }
 

@@ -43,6 +43,9 @@ double fp_splint(const double* t, const int* n, const double* c, const int* k1,
 void fp_splev(const double* t, const int* n, const double* c, const int* k,
               const double* x, double* y, const int* m, const int* e, int* ier);
 
+void fp_sproot(const double* t, const int* n, const double* c, double* zero,
+               const int* mest, int* m, int* ier);
+
 }  // extern "C"
 
 #endif  // INCLUDE_XTENSOR_FITPACK_INTERFACE_DECLARATIONS_H_

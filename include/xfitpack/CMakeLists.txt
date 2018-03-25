@@ -115,6 +115,7 @@ set(FC_SYMBOLS
     splder
     splev
     splint
+    sproot
 )
 
 include(FortranCInterface)
