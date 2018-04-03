@@ -323,6 +323,12 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 ///     the spline.
 /// @param [in] nu
 ///     Order of derivative to evaluate.
+/// @param [in] ext
+///     Controls low-level behaviour during derivation.
+///       * If `0`, the spline is extrapolated from the end spans for points not
+///         in the support.
+///       * If `1`, the spline evaluates to 0 at those points.
+///       * If `2`, the function will throw.
 ///
 /// @returns A tuple containing the vector of knots, `t`, the B-spline
 ///          coefficients, `c`, and the degree of the spline, `k - nu` for the
@@ -335,16 +341,19 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 /// @throws std::runtime_error
 ///     Thrown if ``FITPACK`` encounters any errors.
 ///
-/// @todo Link to ``splantider`` when `n < 0`.
-///
-/// @todo Parametrize ``ext`` to allow users to control FITPACK behaviour.
-///
 template <class E, class... Args>
-auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
+auto splder(const xexpression<E>& x,
+            const std::tuple<Args...>& tck,
+            int nu = 1
+            int ext = 0)
 {
     XTENSOR_ASSERT_MSG(
         0 <= nu && nu <= std::get<2>(tck),
         "order of derivative must be <= k and >= 0"
+    );
+    XTENSOR_ASSERT_MSG(
+        ext == 0 || ext == 1 || ext == 2,
+        "unrecognised value passed to function for ext"
     );
 
     auto n = static_cast<int>(std::get<0>(tck).shape()[0]);
@@ -352,7 +361,6 @@ auto splder(const xexpression<E>& x, const std::tuple<Args...>& tck, int nu = 1)
 
     xtensor<double, 1> y = zeros<double>({ x.derived_cast().shape()[0] });
     xtensor<double, 1> wrk = zeros<double>({ n });
-    auto ext = 0;
     auto ier = 0;
 
     fp_splder(&std::get<0>(tck)[0], &n, &std::get<1>(tck)[0], &std::get<2>(tck),
