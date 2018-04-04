@@ -344,7 +344,7 @@ auto spalde(const xexpression<E>& x, const std::tuple<Args...>& tck)
 template <class E, class... Args>
 auto splder(const xexpression<E>& x,
             const std::tuple<Args...>& tck,
-            int nu = 1
+            int nu = 1,
             int ext = 0)
 {
     XTENSOR_ASSERT_MSG(
