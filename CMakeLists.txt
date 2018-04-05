@@ -11,6 +11,7 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 14)
 
 project(xtensor-interpolate)
+set(${PROJECT_NAME}_VERSION 0.1.0)
 
 set(XTENSOR_INTERPOLATE_INCLUDE_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -57,8 +58,17 @@ install(FILES ${XTENSOR_INTERPOLATE_HEADERS}
 install(FILES ${XTENSOR_FITPACK_INTERFACE_HEADERS}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xfitpack)
 
-set(XTENSOR_INTERPOLATE_CMAKECONFIG_INSTALL_DIR "share/cmake/${PROJECT_NAME}" CACHE STRING "install path for xtensor-interpolateConfig.cmake")
+set(XTENSOR_INTERPOLATE_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE
+    STRING "install path for xtensor-interpolateConfig.cmake")
 
 configure_package_config_file(${PROJECT_NAME}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
                               INSTALL_DESTINATION ${XTENSOR_INTERPOLATE_CMAKECONFIG_INSTALL_DIR})
+
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+                                 VERSION ${${PROJECT_NAME}_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+        DESTINATION ${XTENSOR_INTERPOLATE_CMAKECONFIG_INSTALL_DIR})
