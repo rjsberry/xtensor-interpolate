@@ -100,7 +100,7 @@ set(fitpack_SRC
     FITPACK/sproot.f
     FITPACK/surev.f
     FITPACK/surfit.f
-)
+   )
 
 add_library(xfitpack SHARED ${fitpack_SRC})
 set_target_properties(xfitpack PROPERTIES OUTPUT_NAME "xfitpack")
@@ -116,14 +116,15 @@ set(FC_SYMBOLS
     splev
     splint
     sproot
-)
+   )
 
 include(FortranCInterface)
+
 FortranCInterface_HEADER(${XTENSOR_FITPACK_INTERFACE_INCLUDE_DIR}/xfcmangle.h
     MACRO_NAMESPACE "FP_"
     SYMBOL_NAMESPACE "fp_"
     SYMBOLS ${FC_SYMBOLS}
-)
+   )
 
 # Installation
 
